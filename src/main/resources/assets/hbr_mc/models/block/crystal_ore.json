@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "hbr_mc:block/crystal_ore"
+  }
+}

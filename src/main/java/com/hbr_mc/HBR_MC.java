@@ -1,5 +1,8 @@
 package com.hbr_mc;
 
+import com.hbr_mc.block.ModBlocks;
+import com.hbr_mc.item.ModItemGroups;
+import com.hbr_mc.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.util.Identifier;
@@ -20,7 +23,9 @@ public class HBR_MC implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
-
+		ModItems.registerModItems();
+		ModItemGroups.registerModItemGroups();
+		ModBlocks.registerModBlocks();
 		LOGGER.info("Hello Fabric world!");
 	}
 

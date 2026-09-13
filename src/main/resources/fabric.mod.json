@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"com.hbr_mc.client.HBR_MCClient"
+		],
+		"fabric-datagen": [
+			"com.hbr_mc.datagen.ModDataGenerator"
 		]
 	},
 	"mixins": [
