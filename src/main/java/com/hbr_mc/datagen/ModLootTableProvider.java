@@ -15,6 +15,6 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
 
     @Override
     public void generate() {
-        addDrop(ModBlocks.CRYSTAL_ORE, ModItems.RAW_CRYSTAL);
+        oreDrops(ModBlocks.CRYSTAL_ORE, ModItems.RAW_CRYSTAL);
     }
 }

@@ -9,6 +9,8 @@ import net.minecraft.util.Identifier;
 public class ModItems {
 
     public static final Item BRAVE_BLUE = registerItem("brave_blue", new Item(new Item.Settings()));
+    public static final Item BRAVE_BLUE_S = registerItem("brave_blue_s", new Item(new Item.Settings()));
+
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
 
     private static Item registerItem(String id, Item item)

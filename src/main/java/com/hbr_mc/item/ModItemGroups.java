@@ -18,6 +18,7 @@ public class ModItemGroups {
                     .icon(() -> new ItemStack(ModItems.BRAVE_BLUE))
                     .entries((displayContext, entries) -> {
                         entries.add(new ItemStack(ModItems.BRAVE_BLUE));
+                        entries.add(new ItemStack(ModItems.BRAVE_BLUE_S));
                         entries.add(new ItemStack(ModItems.RAW_CRYSTAL));
                         entries.add(new ItemStack(ModBlocks.CRYSTAL_ORE));
                     })
