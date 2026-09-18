@@ -10,6 +10,11 @@ public class ModItems {
 
     public static final Item BRAVE_BLUE = registerItem("brave_blue", new Item(new Item.Settings()));
     public static final Item BRAVE_BLUE_S = registerItem("brave_blue_s", new Item(new Item.Settings()));
+    public static final Item BRAVE_BLUE_SS= registerItem("brave_blue_ss", new Item(new Item.Settings()));
+
+    public static final Item RAPID_FIRE = registerItem("rapid_fire", new Item(new Item.Settings()));
+    public static final Item RAPID_FIRE_S = registerItem("rapid_fire_s", new Item(new Item.Settings()));
+    public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss", new Item(new Item.Settings()));
 
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
 

@@ -19,6 +19,12 @@ public class ModItemGroups {
                     .entries((displayContext, entries) -> {
                         entries.add(new ItemStack(ModItems.BRAVE_BLUE));
                         entries.add(new ItemStack(ModItems.BRAVE_BLUE_S));
+                        entries.add(new ItemStack(ModItems.BRAVE_BLUE_SS));
+
+                        entries.add(new ItemStack(ModItems.RAPID_FIRE));
+                        entries.add(new ItemStack(ModItems.RAPID_FIRE_S));
+                        entries.add(new ItemStack(ModItems.RAPID_FIRE_SS));
+
                         entries.add(new ItemStack(ModItems.RAW_CRYSTAL));
                         entries.add(new ItemStack(ModBlocks.CRYSTAL_ORE));
                     })
