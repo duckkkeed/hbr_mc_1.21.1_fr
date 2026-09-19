@@ -17,6 +17,7 @@ public class ModItems {
     public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss", new Item(new Item.Settings()));
 
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
+    public static final Item CRYSTAL_LOTTERY = registerItem("crystal_lottery", new Item(new Item.Settings()));
 
     private static Item registerItem(String id, Item item)
     {

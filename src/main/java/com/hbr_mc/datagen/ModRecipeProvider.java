@@ -1,6 +1,5 @@
 package com.hbr_mc.datagen;
 
-import com.hbr_mc.block.ModBlocks;
 import com.hbr_mc.item.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;

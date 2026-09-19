@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 0.7,
+  "group": "crystal_lottery",
+  "ingredient": {
+    "item": "hbr_mc:raw_crystal"
+  },
+  "result": {
+    "id": "hbr_mc:crystal_lottery"
+  }
+}

@@ -26,6 +26,7 @@ public class ModItemGroups {
                         entries.add(new ItemStack(ModItems.RAPID_FIRE_SS));
 
                         entries.add(new ItemStack(ModItems.RAW_CRYSTAL));
+                        entries.add(new ItemStack(ModItems.CRYSTAL_LOTTERY));
                         entries.add(new ItemStack(ModBlocks.CRYSTAL_ORE));
                     })
                     .build());
