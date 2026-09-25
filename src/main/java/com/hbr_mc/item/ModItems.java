@@ -1,10 +1,13 @@
 package com.hbr_mc.item;
 
 import com.hbr_mc.HBR_MC;
+
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+
+import com.hbr_mc.item.food.KnifeCutNoodles;
 
 public class ModItems {
 
@@ -18,6 +21,9 @@ public class ModItems {
 
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
     public static final Item CRYSTAL_LOTTERY = registerItem("crystal_lottery", new Item(new Item.Settings()));
+
+    public static final Item ONION = registerItem("onion", new Item(new Item.Settings().food(ModFoodComponents.ONION)));
+    public static final Item KNIFE_CUT_NOODLES = registerItem("knife_cut_noodles", new KnifeCutNoodles(new Item.Settings().food(ModFoodComponents.KNIFE_CUT_NOODLES)));
 
     private static Item registerItem(String id, Item item)
     {

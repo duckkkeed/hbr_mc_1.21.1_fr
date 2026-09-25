@@ -1,0 +1,16 @@
+﻿{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "hbr_mc:raw_crystal"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "hbr_mc:brave_blue"
+  }
+}

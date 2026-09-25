@@ -9,5 +9,9 @@
   "item.hbr_mc.rapid_fire": "RapidFire",
   "item.hbr_mc.rapid_fire_s": "RapidFire S",
   "item.hbr_mc.rapid_fire_ss": "RapidFire 終いのSpitfire",
-  "item.hbr_mc.crystal_lottery": "Free Crystal"
+  "item.hbr_mc.crystal_lottery": "Free Crystal",
+  "item.hbr_mc.onion": "Onion",
+  "item.hbr_mc.knife_cut_noodles": "knife-cut noodles",
+  "tooltip.hbr_mc.knife_cut_noodles.line1": "The ones who stand in front of a boiling pot of water, a knife in hand,",
+  "tooltip.hbr_mc.knife_cut_noodles.line2": "dough in the other, and slice nice-and-thin pieces into the pot until they're boiled!"
 }

@@ -9,5 +9,9 @@
   "item.hbr_mc.rapid_fire": "RapidFire",
   "item.hbr_mc.rapid_fire_s": "RapidFire S",
   "item.hbr_mc.rapid_fire_ss": "RapidFire(终焉Spitfire)",
-  "item.hbr_mc.crystal_lottery": "免费石英"
+  "item.hbr_mc.crystal_lottery": "免费石英",
+  "item.hbr_mc.onion": "洋葱",
+  "item.hbr_mc.knife_cut_noodles": "刀削面",
+  "tooltip.hbr_mc.knife_cut_noodles.line1": "就是一只手拿着面团，另一只手里拿刀，",
+  "tooltip.hbr_mc.knife_cut_noodles.line2": "站在开水锅前，把面团削成细长的薄片下进锅里煮的那种面!"
 }
