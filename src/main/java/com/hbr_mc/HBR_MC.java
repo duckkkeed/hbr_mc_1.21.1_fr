@@ -3,6 +3,7 @@ package com.hbr_mc;
 import com.hbr_mc.block.ModBlocks;
 import com.hbr_mc.item.ModItemGroups;
 import com.hbr_mc.item.ModItems;
+import com.hbr_mc.command.CommandSeraphTP;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.util.Identifier;
@@ -26,6 +27,8 @@ public class HBR_MC implements ModInitializer {
 		ModItems.registerModItems();
 		ModItemGroups.registerModItemGroups();
 		ModBlocks.registerModBlocks();
+		// Register server commands
+		CommandSeraphTP.register();
 		LOGGER.info("Hello Fabric world!");
 	}
 

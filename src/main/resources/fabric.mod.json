@@ -19,8 +19,7 @@
 			"com.hbr_mc.HBR_MC"
 		],
 		"client": [
-			"com.hbr_mc.client.HBR_MCClient",
-			"com.hbr_mc.item.test.CustomTooltipApiTest"
+			"com.hbr_mc.client.HBR_MCClient"
 		],
 		"fabric-datagen": [
 			"com.hbr_mc.datagen.ModDataGenerator"
@@ -37,7 +36,6 @@
 		"fabricloader": ">=0.19.5",
 		"minecraft": "~1.21.1",
 		"java": ">=21",
-		"fabric-api": "*",
-		"customtooltips": "*"
+		"fabric-api": "*"
 	}
 }

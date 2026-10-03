@@ -8,6 +8,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 import com.hbr_mc.item.food.KnifeCutNoodles;
+import com.hbr_mc.item.seraph.a_31.RAPID_FIRE_SS;
 
 public class ModItems {
 
@@ -17,7 +18,7 @@ public class ModItems {
 
     public static final Item RAPID_FIRE = registerItem("rapid_fire", new Item(new Item.Settings()));
     public static final Item RAPID_FIRE_S = registerItem("rapid_fire_s", new Item(new Item.Settings()));
-    public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss", new Item(new Item.Settings()));
+    public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss", new RAPID_FIRE_SS(new Item.Settings()));
 
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
     public static final Item CRYSTAL_LOTTERY = registerItem("crystal_lottery", new Item(new Item.Settings()));

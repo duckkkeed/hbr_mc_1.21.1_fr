@@ -1,4 +1,4 @@
-package com.hbr_mc.item.test;
+package com.hbr_mc.item.seraph;
 
 import com.stalemated.customtooltips.TooltipEntry;
 import com.stalemated.customtooltips.api.CustomTooltipApi;
@@ -12,6 +12,10 @@ import java.util.List;
 
 import static com.stalemated.customtooltips.CustomTooltipApiClient.LOGGER;
 
+/**
+ * A test class demonstrating how to use the {@link CustomTooltipApi} as a developer.
+ * This initializer registers several example tooltips dynamically during the client startup.
+ */
 @Environment(EnvType.CLIENT)
 public class CustomTooltipApiTest implements ClientModInitializer {
 
@@ -48,7 +52,6 @@ public class CustomTooltipApiTest implements ClientModInitializer {
                 .bold(true)
                 .position(TooltipPosition.REPLACE_NAME)
                 .register();
-
 
         /*
          Adds a warning to all pickaxes (needs shift to show)
