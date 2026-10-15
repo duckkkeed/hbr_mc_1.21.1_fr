@@ -18,7 +18,9 @@ import java.util.regex.Pattern;
 
 /**
  * World-save-backed storage for Seraph teleport toggles.
- * Stores per-world file at <world>/hbr_mc/seraph_tp.json with JSON mapping {"uuid": true, ...}.
+ * <p>Seraph 传送开关的世界存档持久化存储。
+ * <p>Stores per-world file at <world>/hbr_mc/seraph_tp.json with JSON mapping {"uuid": true, ...}.
+ * <p>每个世界会保存一份文件，路径为 <world>/hbr_mc/seraph_tp.json，内容为 JSON 映射 {"uuid": true, ...}。
  */
 public final class SeraphTeleportWorldStorage {
     private static final Map<String, Map<UUID, Boolean>> WORLD_STATES = new ConcurrentHashMap<>();
@@ -55,6 +57,7 @@ public final class SeraphTeleportWorldStorage {
                 if (parent != null) Files.createDirectories(parent);
                 Files.createFile(saveFile);
                 // initialize empty JSON
+                // 初始化空 JSON
                 Files.write(saveFile, "{}\n".getBytes(StandardCharsets.UTF_8));
             }
         } catch (IOException e) {
@@ -101,6 +104,7 @@ public final class SeraphTeleportWorldStorage {
     }
 
     // convenience overloads
+    // 便捷重载
     public static boolean get(PlayerEntity player) {
         if (player instanceof ServerPlayerEntity) return get((ServerPlayerEntity) player);
         return false;

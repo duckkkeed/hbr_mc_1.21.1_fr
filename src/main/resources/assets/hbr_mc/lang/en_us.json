@@ -15,5 +15,8 @@
   "tooltip.hbr_mc.knife_cut_noodles.line1": "The ones who stand in front of a boiling pot of water, a knife in hand,",
   "tooltip.hbr_mc.knife_cut_noodles.line2": "dough in the other, and slice nice-and-thin pieces into the pot until they're boiled!",
   "hbr_mc.msg.teleport_allow": "Seraph Teleportation is now ALLOWED.",
-  "hbr_mc.msg.teleport_deny": "Seraph Teleportation is now DENIED."
+  "hbr_mc.msg.teleport_deny": "Seraph Teleportation is now DENIED.",
+  "hbr_mc.msg.teleport_command": "Hint: enable Seraph teleportation first with /seraphtp, then right-click to teleport.",
+  "hbr_mc.msg.teleport_command_rough": "Hint: that block face is incomplete (slab/carpet...); a rough mode is required to teleport there.",
+  "effect.hbr_mc.self_recoil": "Self Recoil"
 }

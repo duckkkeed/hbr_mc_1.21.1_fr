@@ -8,17 +8,26 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 import com.hbr_mc.item.food.KnifeCutNoodles;
+import com.hbr_mc.item.seraph.EnumSeraphRarity;
+import com.hbr_mc.item.seraph.SeraphItemSettings;
+import com.hbr_mc.item.seraph.a_31.BRAVE_BLUE;
+import com.hbr_mc.item.seraph.a_31.BRAVE_BLUE_S;
+import com.hbr_mc.item.seraph.a_31.BRAVE_BLUE_SS;
+import com.hbr_mc.item.seraph.a_31.RAPID_FIRE;
+import com.hbr_mc.item.seraph.a_31.RAPID_FIRE_S;
 import com.hbr_mc.item.seraph.a_31.RAPID_FIRE_SS;
 
 public class ModItems {
 
-    public static final Item BRAVE_BLUE = registerItem("brave_blue", new Item(new Item.Settings()));
-    public static final Item BRAVE_BLUE_S = registerItem("brave_blue_s", new Item(new Item.Settings()));
-    public static final Item BRAVE_BLUE_SS= registerItem("brave_blue_ss", new Item(new Item.Settings()));
+    // Seraph 系物品：统一继承 ItemSeraphBase，稀有度在各自类里给出（A / S / SS）；
+    // Settings 统一走 SeraphItemSettings（不可堆叠 / 稀有度 / 按稀有度的耐久）。
+    public static final Item BRAVE_BLUE = registerItem("brave_blue", new BRAVE_BLUE(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item BRAVE_BLUE_S = registerItem("brave_blue_s", new BRAVE_BLUE_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item BRAVE_BLUE_SS = registerItem("brave_blue_ss", new BRAVE_BLUE_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
 
-    public static final Item RAPID_FIRE = registerItem("rapid_fire", new Item(new Item.Settings()));
-    public static final Item RAPID_FIRE_S = registerItem("rapid_fire_s", new Item(new Item.Settings()));
-    public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss", new RAPID_FIRE_SS(new Item.Settings()));
+    public static final Item RAPID_FIRE = registerItem("rapid_fire", new RAPID_FIRE(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item RAPID_FIRE_S = registerItem("rapid_fire_s", new RAPID_FIRE_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss", new RAPID_FIRE_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
 
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
     public static final Item CRYSTAL_LOTTERY = registerItem("crystal_lottery", new Item(new Item.Settings()));

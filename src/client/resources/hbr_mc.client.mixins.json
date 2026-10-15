@@ -2,8 +2,12 @@
 	"required": true,
 	"package": "com.hbr_mc.client.mixin",
 	"compatibilityLevel": "JAVA_21",
+	"plugin": "com.hbr_mc.client.mixin.HbrMixinPlugin",
 	"client": [
-		"ExampleClientMixin"
+		"ExampleClientMixin",
+		"DrawContextItemTooltipMixin",
+		"HandledScreenTooltipContextMixin",
+		"TooltipBackgroundMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

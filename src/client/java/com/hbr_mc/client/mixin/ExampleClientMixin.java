@@ -11,5 +11,6 @@ public class ExampleClientMixin {
 	@Inject(at = @At("HEAD"), method = "run")
 	private void init(CallbackInfo info) {
 		// This code is injected into the start of MinecraftClient.run()V
+		// 这段代码被注入到 MinecraftClient.run()V 的开头。
 	}
 }

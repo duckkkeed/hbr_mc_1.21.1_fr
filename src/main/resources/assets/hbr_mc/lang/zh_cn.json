@@ -15,5 +15,8 @@
   "tooltip.hbr_mc.knife_cut_noodles.line1": "就是一只手拿着面团，另一只手里拿刀，",
   "tooltip.hbr_mc.knife_cut_noodles.line2": "站在开水锅前，把面团削成细长的薄片下进锅里煮的那种面!",
   "hbr_mc.msg.teleport_allow": "炽天使传送已启用",
-  "hbr_mc.msg.teleport_deny": "炽天使传送已禁用"
+  "hbr_mc.msg.teleport_deny": "炽天使传送已禁用",
+  "hbr_mc.msg.teleport_command": "提示：先用 /seraphtp 打开炽天使传送开关，才能用武器右键传送。",
+  "hbr_mc.msg.teleport_command_rough": "提示：该方块表面不完整（台阶/地毯等），需要开启粗略模式才可传送。",
+  "effect.hbr_mc.self_recoil": "反作用力"
 }
