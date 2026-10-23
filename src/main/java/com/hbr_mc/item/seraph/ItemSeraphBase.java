@@ -1,9 +1,9 @@
 package com.hbr_mc.item.seraph;
 
+import com.hbr_mc.component.ModComponents;
 import com.hbr_mc.potion.ModPotion;
 import com.hbr_mc.util.SeraphTeleportControl;
 import com.hbr_mc.util.SeraphTeleportWorldStorage;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.PlayerEntity;
@@ -122,9 +122,76 @@ public class ItemSeraphBase extends Item {
         return Collections.unmodifiableList(REGISTERED);
     }
 
-    /** 物品是否已损坏（原版 {@code SeraphUtil.isBroken} 的等价实现）。 */
+    /**
+     * 物品是否已损坏（对应 1.12.2 的 {@code SeraphUtil.isBroken}）。
+     *
+     * <p>注意：<b>不是</b>比较 {@code damage} 与 {@code maxDamage}，而是读自定义组件
+     * {@link ModComponents#SERAPH_BROKEN}。原版在 {@code setDamage} 覆写里
+     * "当伤害<b>超过</b>上限"时才写这个标记，因此耐久刚好等于上限的物品还不算损坏（与原版一致）。
+     */
     public static boolean isBroken(ItemStack stack) {
-        return stack.getDamage() >= stack.getMaxDamage();
+        return Boolean.TRUE.equals(stack.get(ModComponents.SERAPH_BROKEN));
+    }
+
+    /**
+     * 增加耐久损耗，行为对齐 1.12.2 的 {@code Item.setDamage} 覆写：
+     * 超过上限时<b>夹到 {@code maxDamage}</b> 并打上损坏标记，<b>永不销毁物品</b>。
+     *
+     * <p>1.21.1 的 {@code ItemStack#damage(...)} 在耐久归零时会打碎物品，
+     * 而 1.12.2 的 Seraph 物品是"夹到上限 + 记损坏"而不是消失，所以这里不用 {@code damage(...)}。
+     *
+     * @param amount 耐久损耗（可以是小数，按原版语义向下取整）
+     * @return 本次之后是否处于损坏状态
+     */
+    public static boolean damageDurability(ItemStack stack, double amount) {
+        int maxDamage = stack.getMaxDamage();
+        if (maxDamage <= 0 || amount <= 0.0D) return isBroken(stack);
+
+        // 用 double 累加避免 int 溢出（原版是 (int)(damage + amount)，等价）
+        double total = stack.getDamage() + amount;
+        boolean exceeded = total > maxDamage;
+        int newDamage = exceeded ? maxDamage : (int) total;
+
+        if (exceeded) {
+            setBroken(stack);
+        }
+        stack.setDamage(newDamage);
+        return isBroken(stack);
+    }
+
+    /** 打上损坏标记（对应原版 {@code IDLNBTUtil.SetBoolean(stack, KEY_BROKEN, true)}）。 */
+    private static void setBroken(ItemStack stack) {
+        stack.set(ModComponents.SERAPH_BROKEN, true);
+    }
+
+    /** 清除损坏标记。 */
+    private static void clearBroken(ItemStack stack) {
+        stack.remove(ModComponents.SERAPH_BROKEN);
+    }
+
+    /** 完全修复：耐久归零并清除损坏标记（对应 1.12.2 的 {@code SeraphUtil.repairSeraphFully}）。 */
+    public static void repairFully(ItemStack stack) {
+        if (stack.isEmpty()) return;
+        stack.setDamage(0);
+        clearBroken(stack);
+    }
+
+    /**
+     * 修复一定耐久并清除损坏标记（对应 1.12.2 的 {@code SeraphUtil.reviveSeraph}）。
+     *
+     * @return 修复前是否处于损坏状态
+     */
+    public static boolean revive(ItemStack stack, double amount) {
+        if (stack.isEmpty()) return false;
+        boolean wasBroken = isBroken(stack);
+        int maxDamage = stack.getMaxDamage();
+        int newDamage = Math.max(0, (int) (stack.getDamage() - amount));
+        if (maxDamage > 0) {
+            newDamage = Math.min(newDamage, maxDamage);
+        }
+        stack.setDamage(newDamage);
+        clearBroken(stack);
+        return wasBroken;
     }
 
     /** SS 级物品自带附魔光效（对应原版 {@code hasEffect}）。 */
@@ -290,11 +357,7 @@ public class ItemSeraphBase extends Item {
 
         switch (status) {
             case SUCCESS -> {
-                // 1.12.2 的 stack.damageItem(distance, player) 会作用在"正在使用的那只手"上的物品；
-                // 1.21.1 需要显式给出栏位（用于破碎提示/统计），因此按 context 的手映射
-                EquipmentSlot slot = context.getHand() == Hand.MAIN_HAND
-                        ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
-                return finishTeleport(serverPlayer, world, stack, startPos, slot);
+                return finishTeleport(serverPlayer, world, stack, startPos);
             }
             case PASS, INVALID_FACE -> {
                 return ActionResult.PASS;
@@ -308,14 +371,19 @@ public class ItemSeraphBase extends Item {
         return ActionResult.PASS;
     }
 
-    /** 传送成功后的收尾：冷却、按距离扣耐久、传送音效。 */
+    /**
+     * 传送成功后的收尾：冷却、按距离扣耐久、传送音效。
+     *
+     * <p>扣耐久走 {@link #damageDurability(ItemStack, double)}（夹到上限 + 记损坏），
+     * 因此与原版一致：<b>不会因为传送把物品打碎</b>。
+     */
     private static ActionResult finishTeleport(ServerPlayerEntity player, World world, ItemStack stack,
-                                               Vec3d startPos, EquipmentSlot slot) {
+                                               Vec3d startPos) {
         player.getItemCooldownManager().set((Item) stack.getItem(), TELEPORT_COOLDOWN_TICKS);
 
         int distance = (int) startPos.distanceTo(player.getPos());
         if (distance > 0) {
-            stack.damage(distance, player, slot);
+            damageDurability(stack, distance);
         }
 
         if (world instanceof ServerWorld serverWorld) {

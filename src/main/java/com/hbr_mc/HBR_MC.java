@@ -31,6 +31,8 @@ public class HBR_MC implements ModInitializer {
 		// 但某些内容（例如资源）可能仍未完成初始化。
 		// Proceed with mild caution.
 		// 请谨慎继续执行。
+		// 自定义数据组件须在物品之前注册（Seraph 的"已损坏"标记）
+		com.hbr_mc.component.ModComponents.register();
 		ModItems.registerModItems();
 		ModItemGroups.registerModItemGroups();
 		ModBlocks.registerModBlocks();

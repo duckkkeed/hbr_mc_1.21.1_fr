@@ -54,6 +54,7 @@ public final class SeraphDamageAbsorb {
         ServerLivingEntityEvents.ALLOW_DAMAGE.register(SeraphDamageAbsorb::allowDamage);
     }
 
+    //耐久耗尽后仍能吸收伤害大概率是是bug， 但为了和1.12.2一致，暂时不改
     private static boolean allowDamage(LivingEntity entity, DamageSource source, float amount) {
         // 原版只处理玩家
         if (!(entity instanceof ServerPlayerEntity player)) return true;
@@ -65,33 +66,25 @@ public final class SeraphDamageAbsorb {
         ItemStack stack = player.getMainHandStack();
         if (!(stack.getItem() instanceof ItemSeraphBase)) return true;
 
-        if (!absorb(stack, amount)) return true;
+//        if (ItemSeraphBase.isBroken(stack)) return true;
+
+        return !absorb(stack, amount);
 
         // 抵消本次伤害
-        return false;
     }
 
     /**
      * 把伤害值加到耐久上，对应原版 {@code setItemDamage((int) (getItemDamage() + amount))}。
      *
-     * <p>原版的 {@code setDamage} 覆写会把超出部分夹到 {@code getMaxDamage()}（并写损坏标记），
-     * 1.21.1 无法覆写该方法，所以这里显式夹住。
+     * <p>交给 {@link ItemSeraphBase#damageDurability(ItemStack, double)} 处理：
+     * 与原版 {@code setDamage} 覆写一致——超过上限时夹到 {@code getMaxDamage()} 并打损坏标记，
+     * 物品<b>不会因为耐久耗尽而消失</b>。
      *
      * @return 是否真的吸收了（没有耐久属性的物品不吸收）
      */
     private static boolean absorb(ItemStack stack, float amount) {
-        int maxDamage = stack.getMaxDamage();
-        if (maxDamage <= 0) return false;
-
-        // float 转 int 时 Java 会饱和到 Integer.MAX_VALUE，随后再被夹到 maxDamage
-        int newDamage = (int) (stack.getDamage() + amount);
-        if (newDamage > maxDamage) {
-            newDamage = maxDamage;
-        }
-        if (newDamage < 0) {
-            newDamage = 0;
-        }
-        stack.setDamage(newDamage);
+        if (stack.getMaxDamage() <= 0) return false;
+        ItemSeraphBase.damageDurability(stack, amount);
         return true;
     }
 }
