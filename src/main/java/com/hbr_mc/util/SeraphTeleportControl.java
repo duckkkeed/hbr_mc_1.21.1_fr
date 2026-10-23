@@ -101,20 +101,26 @@ public final class SeraphTeleportControl {
         return climbOntoWall(player, world, clickedPos) ? Status.SUCCESS : Status.NO_VALID_DESTINATION;
     }
 
-    /** 竖直面：沿视线水平方向冲刺（潜行时反向），距离 5 → 4。 */
+    /**
+     * 竖直面：沿视线水平方向冲刺（潜行时反向），距离 5 → 4。
+     *
+     * <p>与 1.12.2 一致：目标 Y 是 {@code player.posY + 1}（前冲并抬高 1 格），
+     * 而不是保持在原地高度 —— 原版 {@code attemptTeleport(x, posY + 1, z)} 就是这么写的。
+     */
     private static boolean dash(ServerPlayerEntity player, World world) {
         Vec3d look = player.getRotationVec(1.0F);
         Vec3d horizontal = new Vec3d(look.x, 0.0D, look.z);
         if (horizontal.lengthSquared() < 1.0E-4D) return false;
         horizontal = horizontal.normalize();
 
+        double targetY = player.getY() + 1.0D;
         double sign = player.isSneaking() ? -1.0D : 1.0D;
         for (int distance = DASH_START_DISTANCE; distance > DASH_MIN_DISTANCE; distance--) {
             double x = player.getX() + horizontal.x * distance * sign;
             double z = player.getZ() + horizontal.z * distance * sign;
-            BlockPos feetPos = BlockPos.ofFloored(x, player.getY(), z);
+            BlockPos feetPos = BlockPos.ofFloored(x, targetY, z);
             if (!canTeleportTo(world, feetPos)) continue;
-            return teleportPlayer(player, x, feetPos.getY(), z);
+            return teleportPlayer(player, x, targetY, z);
         }
         return false;
     }

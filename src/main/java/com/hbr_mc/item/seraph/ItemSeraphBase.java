@@ -3,6 +3,7 @@ package com.hbr_mc.item.seraph;
 import com.hbr_mc.potion.ModPotion;
 import com.hbr_mc.util.SeraphTeleportControl;
 import com.hbr_mc.util.SeraphTeleportWorldStorage;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.PlayerEntity;
@@ -129,7 +130,23 @@ public class ItemSeraphBase extends Item {
     /** SS 级物品自带附魔光效（对应原版 {@code hasEffect}）。 */
     @Override
     public boolean hasGlint(ItemStack stack) {
+        // 1.21.1 的 Item#hasGlint 默认就是 stack.hasEnchantments()，
+        // 所以这里等价于 1.12.2 的 stack.isItemEnchanted() || seraphRarity == SS
         return super.hasGlint(stack) || seraphRarity == EnumSeraphRarity.SS;
+    }
+
+    /**
+     * 耐久条是否始终显示（对应 1.12.2 的 {@code showDurabilityBar} 恒返回 {@code true}）。
+     *
+     * <p>1.21.1 原版默认只在物品已受损时显示（{@code stack.isDamaged()}），
+     * 而 1.12.2 的 Seraph 物品<b>满耐久时也显示</b>一条满格耐久条。这里保留该行为。
+     *
+     * <p>加了 {@code getMaxDamage() > 0} 的保护：没有耐久属性的物品若返回 true，
+     * 原版 {@code getItemBarStep} 里的除法会得到 NaN，画出一条无意义的空槽。
+     */
+    @Override
+    public boolean isItemBarVisible(ItemStack stack) {
+        return stack.getMaxDamage() > 0;
     }
 
     /**
@@ -273,7 +290,11 @@ public class ItemSeraphBase extends Item {
 
         switch (status) {
             case SUCCESS -> {
-                return finishTeleport(serverPlayer, world, stack, startPos);
+                // 1.12.2 的 stack.damageItem(distance, player) 会作用在"正在使用的那只手"上的物品；
+                // 1.21.1 需要显式给出栏位（用于破碎提示/统计），因此按 context 的手映射
+                EquipmentSlot slot = context.getHand() == Hand.MAIN_HAND
+                        ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+                return finishTeleport(serverPlayer, world, stack, startPos, slot);
             }
             case PASS, INVALID_FACE -> {
                 return ActionResult.PASS;
@@ -288,12 +309,13 @@ public class ItemSeraphBase extends Item {
     }
 
     /** 传送成功后的收尾：冷却、按距离扣耐久、传送音效。 */
-    private static ActionResult finishTeleport(ServerPlayerEntity player, World world, ItemStack stack, Vec3d startPos) {
+    private static ActionResult finishTeleport(ServerPlayerEntity player, World world, ItemStack stack,
+                                               Vec3d startPos, EquipmentSlot slot) {
         player.getItemCooldownManager().set((Item) stack.getItem(), TELEPORT_COOLDOWN_TICKS);
 
         int distance = (int) startPos.distanceTo(player.getPos());
         if (distance > 0) {
-            stack.damage(distance, player, net.minecraft.entity.EquipmentSlot.MAINHAND);
+            stack.damage(distance, player, slot);
         }
 
         if (world instanceof ServerWorld serverWorld) {
