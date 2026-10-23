@@ -22,6 +22,7 @@ import net.minecraft.util.Rarity;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -132,6 +133,52 @@ public class ItemSeraphBase extends Item {
     }
 
     /**
+     * 耐久条的动态颜色（对应 1.12.2 的 {@code getRGBDurabilityForDisplay}）。
+     *
+     * <p>1.12.2 原实现：
+     * <pre>{@code
+     * return MathHelper.hsvToRGB(
+     *         Math.max(0.0F, (float) (1.5F + getDurabilityForDisplay(stack))) / 3.0F, 1.0F, 1.0F);
+     * }</pre>
+     * 其中 {@code getDurabilityForDisplay} 返回<b>已损失比例</b>（0.0 = 崭新，1.0 = 完全损坏）。
+     *
+     * <p>1.21.1 的对应钩子是 {@link Item#getItemBarColor(ItemStack)}（原版实现为
+     * {@code hsvToRgb(剩余比例 / 3)}，即绿→红）。这里把"剩余比例"换算回"已损失比例"后
+     * 套用原公式，得到<b>崭新=青 → 蓝 → 紫 → 损坏=品红</b>的渐变：
+     *
+     * <table>
+     *   <caption>渐变取样</caption>
+     *   <tr><th>已损失</th><th>色相</th><th>颜色</th></tr>
+     *   <tr><td>0%</td><td>0.500</td><td>青 <code>#00FFFF</code></td></tr>
+     *   <tr><td>25%</td><td>0.583</td><td>蓝青 <code>#0080FF</code></td></tr>
+     *   <tr><td>50%</td><td>0.667</td><td>蓝 <code>#0000FF</code></td></tr>
+     *   <tr><td>75%</td><td>0.750</td><td>紫 <code>#8000FF</code></td></tr>
+     *   <tr><td>100%</td><td>0.833</td><td>品红 <code>#FF00FF</code></td></tr>
+     * </table>
+     *
+     * <p>想改回原版 1.12.2/1.21.1 的绿→红，只需把 {@link #durabilityHue} 里的
+     * {@code 1.5F + damageFraction} 换成 {@code 1.0F - damageFraction}。
+     *
+     * <p>条的长度仍沿用原版 {@link Item#getItemBarStep(ItemStack)}（按剩余耐久 13 格等分），
+     * 这里只改颜色。
+     */
+    @Override
+    public int getItemBarColor(ItemStack stack) {
+        return MathHelper.hsvToRgb(durabilityHue(stack), 1.0F, 1.0F);
+    }
+
+    /**
+     * 耐久条色相，对应原版公式里的 {@code Math.max(0.0F, (1.5F + d)) / 3.0F}，
+     * 其中 {@code d} 为已损失耐久比例（0.0 = 崭新，1.0 = 完全损坏）。
+     */
+    private static float durabilityHue(ItemStack stack) {
+        int maxDamage = stack.getMaxDamage();
+        // 无耐久属性的物品不会显示耐久条，这里给一个安全值避免除零
+        float damageFraction = maxDamage <= 0 ? 0.0F : (float) stack.getDamage() / (float) maxDamage;
+        return Math.max(0.0F, 1.5F + damageFraction) / 3.0F;
+    }
+
+    /**
      * 物品稀有度（对应原版 {@code getForgeRarity} 返回 {@code EnumRarity.EPIC}）。
      *
      * <p>1.21.1 的稀有度是 {@code Item.Settings#rarity(...)} 组件，可在注册时设置；
@@ -139,6 +186,47 @@ public class ItemSeraphBase extends Item {
      */
     public static Rarity rarityFor(EnumSeraphRarity rarity) {
         return rarity == EnumSeraphRarity.SS ? Rarity.EPIC : Rarity.RARE;
+    }
+
+    // ------------------------------------------------------------ 命中不掉耐久 --
+
+    /**
+     * 命中实体时的钩子（对应 1.12.2 的 {@code hitEntity}）：<b>Seraph 物品不会因为命中实体而损耗耐久</b>。
+     *
+     * <p>1.12.2 与 1.21.1 的机制不同，不能照抄"返回 true"：
+     *
+     * <pre>
+     * 1.12.2:  ItemSword#hitEntity 自己调用 stack.damageItem(1, attacker) 再返回 true
+     *          → 覆写 hitEntity 且不调用 damageItem、返回 true，就等于关掉了扣耐久
+     *
+     * 1.21.1:  PlayerEntity#attack
+     *            bl6 = ItemStack#postHit(...)          → Item#postHit(...)       // 返回值决定下一步
+     *            if (bl6) ItemStack#postDamageEntity(...)
+     *                       → Item#postDamageEntity(...)                        // SwordItem 在这里 stack.damage(1)
+     *          → 返回 true 反而会<b>启动</b>扣耐久链路，所以这里必须返回 false
+     * </pre>
+     *
+     * <p>本方法返回 {@code false}：不触发后续 {@link #postDamageEntity}，因此不会扣耐久。
+     * 若你希望命中计入原版的"已使用"统计（{@code Stats.USED}），可以改成返回 {@code true}
+     * —— 因为下面的 {@link #postDamageEntity} 已被固定为空实现，即使链路启动也不会掉耐久。
+     */
+    @Override
+    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        return false;
+    }
+
+    /**
+     * 命中后处理：刻意留空，确保 Seraph 物品不会因为命中实体而损耗耐久。
+     *
+     * <p>原版 {@code Item} 基类本就为空，真正扣耐久的是 {@code SwordItem#postDamageEntity}
+     * （内调 {@code stack.damage(1, attacker, EquipmentSlot.MAINHAND)}）。
+     * 这里显式声明空实现，作为"即使将来 {@link #postHit} 改成返回 true 也不掉耐久"的保险。
+     *
+     * <p>注意：这与原版 1.12.2 {@code hitEntity} 注释里的 "don't drop durability" 是同一意图。
+     */
+    @Override
+    public void postDamageEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        // 不扣耐久：此处不调用 stack.damage(...)
     }
 
     // -------------------------------------------------------------- 右键传送 --
