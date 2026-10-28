@@ -28,6 +28,7 @@ public class ModItemGroups {
                         entries.add(new ItemStack(ModItems.RAW_CRYSTAL));
                         entries.add(new ItemStack(ModItems.CRYSTAL_LOTTERY));
                         entries.add(new ItemStack(ModBlocks.CRYSTAL_ORE));
+                        entries.add(new ItemStack(ModBlocks.DEEPSLATE_CRYSTAL_ORE));
 
                         entries.add(new ItemStack(ModItems.ONION));
                         entries.add(new ItemStack(ModItems.KNIFE_CUT_NOODLES));

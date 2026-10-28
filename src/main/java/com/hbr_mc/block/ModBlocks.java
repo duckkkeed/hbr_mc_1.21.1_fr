@@ -3,20 +3,23 @@ package com.hbr_mc.block;
 import com.hbr_mc.HBR_MC;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.ExperienceDroppingBlock;
 import net.minecraft.block.MapColor;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.intprovider.ConstantIntProvider;
 
 
 public class ModBlocks {
 
-    public static final Block CRYSTAL_ORE = register("crystal_ore", new Block(AbstractBlock.Settings.create()
-            .mapColor(MapColor.STONE_GRAY)
-            .strength(3.0f, 3.0f)
-            .requiresTool()));
+    public static final Block CRYSTAL_ORE = register("crystal_ore", new ExperienceDroppingBlock(ConstantIntProvider.create(0),
+            AbstractBlock.Settings.create().mapColor(MapColor.STONE_GRAY).strength(15f, 15f).requiresTool()));
+
+    public static final Block DEEPSLATE_CRYSTAL_ORE = register("deepslate_crystal_ore", new ExperienceDroppingBlock(ConstantIntProvider.create(0),
+            AbstractBlock.Settings.copyShallow(CRYSTAL_ORE).mapColor(MapColor.DEEPSLATE_GRAY).strength(15f, 15f).requiresTool()));
 
     public static void registerBlocks(String id, Block block)
     {

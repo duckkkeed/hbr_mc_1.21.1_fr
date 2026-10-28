@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "group": "crystal_lottery",
+  "ingredient": {
+    "item": "hbr_mc:deepslate_crystal_ore"
+  },
+  "result": {
+    "id": "hbr_mc:crystal_lottery"
+  }
+}

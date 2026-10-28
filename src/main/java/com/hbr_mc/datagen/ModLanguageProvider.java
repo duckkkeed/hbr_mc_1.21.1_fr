@@ -28,6 +28,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add(ModItems.ONION, "Onion");
 
         translationBuilder.add(ModBlocks.CRYSTAL_ORE, "Free Crystal Ore");
+        translationBuilder.add(ModBlocks.DEEPSLATE_CRYSTAL_ORE, "Deepslate Free Crystal Ore");
         translationBuilder.add("itemGroup.hbr_mc.tab_1", "Heaven Burns Red");
         translationBuilder.add("itemGroup.hbr_mc.tab_2", "Heaven Burns Red Spawn");
     }

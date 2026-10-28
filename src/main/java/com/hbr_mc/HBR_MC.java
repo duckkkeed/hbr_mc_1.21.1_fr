@@ -37,6 +37,8 @@ public class HBR_MC implements ModInitializer {
 		ModItemGroups.registerModItemGroups();
 		ModBlocks.registerModBlocks();
 		ModPotion.registerModPotions();
+		// 世界生成：crystal_ore（浅层带 + 深层带）
+		com.hbr_mc.worldgen.HBR_MCWorldGen.register();
 		// Register server commands
 		// 注册服务器命令
 		CommandSeraphTP.register();
