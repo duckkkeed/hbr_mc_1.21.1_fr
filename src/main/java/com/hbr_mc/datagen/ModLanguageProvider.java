@@ -27,6 +27,21 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add(ModItems.CRYSTAL_LOTTERY, "Crystal Lottery");
         translationBuilder.add(ModItems.ONION, "Onion");
 
+        translationBuilder.add(ModItems.LOTTERY, "Lottery Ticket");
+        translationBuilder.add(ModItems.GEM_R, "Ruby");
+        translationBuilder.add(ModItems.GEM_Y, "Topaz");
+        translationBuilder.add(ModItems.GEM_U, "Sapphire");
+        translationBuilder.add(ModItems.GEM_W, "Pearl");
+        translationBuilder.add(ModItems.GEM_B, "Onyx");
+        translationBuilder.add(ModItems.GEM_AMBER, "Jade Amber");
+        translationBuilder.add(ModItems.BOOST_1_A, "Boost Material (Slash)");
+        translationBuilder.add(ModItems.BOOST_1_B, "Boost Material (Shoot)");
+        translationBuilder.add(ModItems.BOOST_1_C, "Boost Material (Smash)");
+        translationBuilder.add(ModItems.GEM_DROPLET, "Sol Droplet");
+        translationBuilder.add(ModItems.SHARD_SS, "SS Universal Shard");
+        translationBuilder.add(ModItems.XP_ITEM_1, "Exp Book");
+        translationBuilder.add(ModItems.XP_ITEM_2, "Exp Book II");
+
         translationBuilder.add(ModBlocks.CRYSTAL_ORE, "Free Crystal Ore");
         translationBuilder.add(ModBlocks.DEEPSLATE_CRYSTAL_ORE, "Deepslate Free Crystal Ore");
         translationBuilder.add("itemGroup.hbr_mc.tab_1", "Heaven Burns Red");

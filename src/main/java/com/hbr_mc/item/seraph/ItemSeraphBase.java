@@ -18,6 +18,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.UseAction;
@@ -25,6 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -56,8 +58,9 @@ import java.util.List;
  * <ol>
  *   <li>{@code getMaxDamage}：1.21.1 耐久由 {@code Item.Settings#maxDamage} 固定，不能按 NBT 等级动态计算；
  *       这里改用 {@code SeraphItemSettings} 按稀有度给出近似值。</li>
- *   <li>{@code getAttributeModifiers} / {@code getAttrValue} / {@code getAttrValuePercent}：依赖
- *       {@code SeraphUtil}、{@code SeraphAttrData}、{@code SeraphBoostUnit}、{@code RegisterAttr} 等属性系统，全部缺失。</li>
+ *   <li>{@code getAttributeModifiers} / {@code getAttrValue} / {@code getAttrValuePercent}：依赖属性系统
+ *       （{@code RegisterAttr} / {@code SeraphAttrData} / {@code SeraphBoostUnit}），仍未移植；
+ *       强化/突破的<b>次数</b>本身已由 {@link SeraphUtil} 提供，属性加成等属性系统补齐后再接。</li>
  *   <li>{@code castSkillSneak/NonSneak/Friend/Enemy}、{@code getSkillLimit/Level/Left}、{@code skillUseMark}、
  *       {@code calcAtkBuffSkill}：依赖技能与 Buff 系统（原 {@code IDLNBTUtil} + {@code RegisterEffects} + {@code ModConfig.COMBAT}）。</li>
  *   <li>{@code onHit(LivingHurtEvent)}（手持时把伤害转为耐久消耗）：需要 1.21.1 的伤害事件/混合注入。</li>
@@ -115,6 +118,22 @@ public class ItemSeraphBase extends Item {
     /** 武器类型；未指定时为 {@code null}。 */
     public EnumSeraphType getSeraphType() {
         return seraphType;
+    }
+
+    /**
+     * 按等级计算耐久上限（对应 1.12.2 覆写的 {@code getMaxDamage(ItemStack)}）：
+     * {@code base = 600 + 7 * level}，再按稀有度放大。
+     *
+     * <p>1.21.1 不能覆写 {@code getMaxDamage}，所以由 {@link SeraphUtil#setLevel} 把结果写进
+     * 物品堆的 {@code MAX_DAMAGE} 组件。
+     */
+    public int maxDamageForLevel(int level) {
+        int base = 600 + 7 * level;
+        return switch (seraphRarity) {
+            case SS -> (int) (base * 1.7F) + 200;
+            case S -> (int) (base * 1.5F) + 50;
+            case A -> (int) (base * 1.3F);
+        };
     }
 
     /** 全部已登记的 Seraph 物品（只读）。 */
@@ -194,6 +213,26 @@ public class ItemSeraphBase extends Item {
         return wasBroken;
     }
 
+    // 1.12.2 的 Item#onUpdate 在 1.21.1 对应 Item#inventoryTick，这里保持原版「已注释」的状态：
+    // 修复概率本身还没定（见 //todo）。取消注释时需要补 import net.minecraft.entity.Entity。
+    // 对照：SeraphUtil.isBroken → 本类静态方法 isBroken；worldIn.isRemote → !world.isClient()；
+    //       worldIn.getTotalWorldTime() → world.getTime()。
+//    @Override
+//    public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
+//        super.inventoryTick(stack, world, entity, itemSlot, isSelected);
+//        if (!world.isClient())
+//        {
+//            if (isBroken(stack))
+//            {
+//                if (world.getTime() % 24000 == 0)
+//                {
+//                    //todo: chance to repair
+//                }
+//                return;
+//            }
+//        }
+//    }
+
     /** SS 级物品自带附魔光效（对应原版 {@code hasEffect}）。 */
     @Override
     public boolean hasGlint(ItemStack stack) {
@@ -214,6 +253,28 @@ public class ItemSeraphBase extends Item {
     @Override
     public boolean isItemBarVisible(ItemStack stack) {
         return stack.getMaxDamage() > 0;
+    }
+
+    /**
+     * 提示框里的成长信息（对应 1.12.2 客户端 {@code DescForSeraph} 的等级/强化/突破三行）。
+     *
+     * <p>数据来自 {@link SeraphUtil} 的组件，客户端也能直接读到（组件随物品同步）。
+     */
+    @Override
+    public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type) {
+        super.appendTooltip(stack, context, tooltip, type);
+        int level = SeraphUtil.getLevel(stack);
+        int maxLevel = SeraphUtil.getMaxLevel(stack);
+        if (level >= maxLevel) {
+            tooltip.add(Text.translatable("desc.hbr_mc.seraph.level_format_max", level));
+        } else {
+            tooltip.add(Text.translatable("desc.hbr_mc.seraph.level_format", level,
+                    SeraphUtil.getXP(stack), SeraphUtil.getXPForLevel(level)));
+        }
+        tooltip.add(Text.translatable("desc.hbr_mc.seraph.boost",
+                SeraphUtil.getBoost(stack), SeraphUtil.getMaxBoost(stack)).formatted(Formatting.LIGHT_PURPLE));
+        tooltip.add(Text.translatable("desc.hbr_mc.seraph.breakthrough",
+                SeraphUtil.getBreakThrough(stack), SeraphUtil.getMaxBreakThrough(stack)).formatted(Formatting.LIGHT_PURPLE));
     }
 
     /**
@@ -471,7 +532,6 @@ public class ItemSeraphBase extends Item {
     //      getMaxSkillSlot / skillUseMark（依赖 NBT 技能等级与使用次数）
     //  · 友方/敌方交互：itemInteractionForEntity → castSkillFriend / castSkillEnemy（1.21.1 对应
     //      Item#useOnEntity，且需要 EntityPlayer/EntityNPC/IMob/EntityCancer 的等价判定）
-    //  · 受击转耐久：onHit(LivingHurtEvent)（1.21.1 需要伤害事件或 Mixin）
     //  · 创造栏变体：getSubItems 的"满级/满突破"条目（依赖 Boost 与突破系统）
     //  · 冷却加速：fasterCooldown（依赖 BreakThrough 与具体物品 RegisterItem.BRAVE_BLUE_SS）
 }

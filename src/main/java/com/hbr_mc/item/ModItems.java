@@ -31,6 +31,22 @@ public class ModItems {
 
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
     public static final Item CRYSTAL_LOTTERY = registerItem("crystal_lottery", new Item(new Item.Settings()));
+    public static final Item LOTTERY = registerItem("lottery", new Item(new Item.Settings()));
+
+    public static final Item GEM_R = registerItem("gem_red", new Item(new Item.Settings()));
+    public static final Item GEM_Y = registerItem("gem_yellow", new Item(new Item.Settings()));
+    public static final Item GEM_U = registerItem("gem_blue", new Item(new Item.Settings()));
+    public static final Item GEM_W = registerItem("gem_white", new Item(new Item.Settings()));
+    public static final Item GEM_B = registerItem("gem_black", new Item(new Item.Settings()));
+    public static final Item GEM_AMBER = registerItem("gem_amber", new Item(new Item.Settings()));
+
+    public static final Item BOOST_1_A = registerItem("boost_1_a", new Item(new Item.Settings()));
+    public static final Item BOOST_1_B = registerItem("boost_1_b", new Item(new Item.Settings()));
+    public static final Item BOOST_1_C = registerItem("boost_1_c", new Item(new Item.Settings()));
+    public static final Item GEM_DROPLET = registerItem("gem_droplet", new Item(new Item.Settings()));
+    public static final Item SHARD_SS = registerItem("shard_ss", new Item(new Item.Settings()));
+    public static final Item XP_ITEM_1 = registerItem("xp_item_1", new Item(new Item.Settings()));
+    public static final Item XP_ITEM_2 = registerItem("xp_item_2", new Item(new Item.Settings()));
 
     public static final Item ONION = registerItem("onion", new Item(new Item.Settings().food(ModFoodComponents.ONION)));
     public static final Item KNIFE_CUT_NOODLES = registerItem("knife_cut_noodles", new KnifeCutNoodles(new Item.Settings().food(ModFoodComponents.KNIFE_CUT_NOODLES)));

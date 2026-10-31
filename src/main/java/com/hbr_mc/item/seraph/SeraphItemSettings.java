@@ -19,14 +19,17 @@ import net.minecraft.item.Item;
  *
  * <p><b>1.21.1 的差异</b>：耐久是 {@code Item.Settings#maxDamage(...)} 决定的固定值组件
  * （{@code DataComponentTypes.MAX_DAMAGE}），不能再像原版那样覆写
- * {@code getMaxDamage(ItemStack)} 按 NBT 动态计算。所以这里用「等级 0 时的 base = 600」
- * 代入上面三条公式，得到一个与稀有度等级相符的固定上限；等移植了等级/突破系统之后，
- * 若确实需要动态耐久，再改为在物品堆上写 {@code MAX_DAMAGE} 组件。
+ * {@code getMaxDamage(ItemStack)} 按 NBT 动态计算。所以这里的静态值按<b>默认等级 1</b> 代入公式，
+ * 作为「尚未写入成长数据」时的兜底；一旦 {@link SeraphUtil#setLevel} 被调用，
+ * 就会把按等级算出的上限写进物品堆的 {@code MAX_DAMAGE} 组件（见 {@code ItemSeraphBase#maxDamageForLevel}）。
  */
 public final class SeraphItemSettings {
 
-    /** 原版 {@code base = 600 + 7 * level} 在等级 0 时的取值。 */
-    private static final int BASE_DURABILITY = 600;
+    /** 默认等级（未写入成长数据时按 1 级处理）。 */
+    private static final int DEFAULT_LEVEL = 1;
+
+    /** 原版 {@code base = 600 + 7 * level} 在默认等级下的取值。 */
+    private static final int BASE_DURABILITY = 600 + 7 * DEFAULT_LEVEL;
 
     private SeraphItemSettings() {
     }

@@ -27,8 +27,24 @@ public class ModItemGroups {
 
                         entries.add(new ItemStack(ModItems.RAW_CRYSTAL));
                         entries.add(new ItemStack(ModItems.CRYSTAL_LOTTERY));
+                        entries.add(new ItemStack(ModItems.LOTTERY));
                         entries.add(new ItemStack(ModBlocks.CRYSTAL_ORE));
                         entries.add(new ItemStack(ModBlocks.DEEPSLATE_CRYSTAL_ORE));
+
+                        entries.add(new ItemStack(ModItems.GEM_R));
+                        entries.add(new ItemStack(ModItems.GEM_Y));
+                        entries.add(new ItemStack(ModItems.GEM_U));
+                        entries.add(new ItemStack(ModItems.GEM_W));
+                        entries.add(new ItemStack(ModItems.GEM_B));
+                        entries.add(new ItemStack(ModItems.GEM_AMBER));
+
+                        entries.add(new ItemStack(ModItems.BOOST_1_A));
+                        entries.add(new ItemStack(ModItems.BOOST_1_B));
+                        entries.add(new ItemStack(ModItems.BOOST_1_C));
+                        entries.add(new ItemStack(ModItems.GEM_DROPLET));
+                        entries.add(new ItemStack(ModItems.SHARD_SS));
+                        entries.add(new ItemStack(ModItems.XP_ITEM_1));
+                        entries.add(new ItemStack(ModItems.XP_ITEM_2));
 
                         entries.add(new ItemStack(ModItems.ONION));
                         entries.add(new ItemStack(ModItems.KNIFE_CUT_NOODLES));

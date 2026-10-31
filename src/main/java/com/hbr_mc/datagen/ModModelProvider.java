@@ -32,5 +32,21 @@ public class ModModelProvider extends FabricModelProvider {
         itemModelGenerator.register(ModItems.RAW_CRYSTAL, Models.GENERATED);
         itemModelGenerator.register(ModItems.CRYSTAL_LOTTERY, Models.GENERATED);
         itemModelGenerator.register(ModItems.ONION, Models.GENERATED);
+
+        // 材料 / 消耗品（1.12.2 的宝石、强化材料、碎片、经验书、抽卡券）
+        itemModelGenerator.register(ModItems.LOTTERY, Models.GENERATED);
+        itemModelGenerator.register(ModItems.GEM_R, Models.GENERATED);
+        itemModelGenerator.register(ModItems.GEM_Y, Models.GENERATED);
+        itemModelGenerator.register(ModItems.GEM_U, Models.GENERATED);
+        itemModelGenerator.register(ModItems.GEM_W, Models.GENERATED);
+        itemModelGenerator.register(ModItems.GEM_B, Models.GENERATED);
+        itemModelGenerator.register(ModItems.GEM_AMBER, Models.GENERATED);
+        itemModelGenerator.register(ModItems.BOOST_1_A, Models.GENERATED);
+        itemModelGenerator.register(ModItems.BOOST_1_B, Models.GENERATED);
+        itemModelGenerator.register(ModItems.BOOST_1_C, Models.GENERATED);
+        itemModelGenerator.register(ModItems.GEM_DROPLET, Models.GENERATED);
+        itemModelGenerator.register(ModItems.SHARD_SS, Models.GENERATED);
+        itemModelGenerator.register(ModItems.XP_ITEM_1, Models.GENERATED);
+        itemModelGenerator.register(ModItems.XP_ITEM_2, Models.GENERATED);
     }
 }

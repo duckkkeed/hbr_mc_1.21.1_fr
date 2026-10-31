@@ -42,6 +42,7 @@ public class HBR_MC implements ModInitializer {
 		// Register server commands
 		// 注册服务器命令
 		CommandSeraphTP.register();
+		com.hbr_mc.command.CommandSeraph.register();
 		// 伤害转耐久：主手持有 Seraph 物品时，受到的伤害转为该物品的耐久消耗
 		com.hbr_mc.event.SeraphDamageAbsorb.register();
 		LOGGER.info("Hello Fabric world!");
