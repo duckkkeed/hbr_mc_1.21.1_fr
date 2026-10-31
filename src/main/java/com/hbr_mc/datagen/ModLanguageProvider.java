@@ -42,6 +42,16 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add(ModItems.XP_ITEM_1, "Exp Book");
         translationBuilder.add(ModItems.XP_ITEM_2, "Exp Book II");
 
+        // 物品说明行：客户端 ItemDescTooltips 读取 "<翻译键>.desc"，有译文才显示。
+        translationBuilder.add("item.hbr_mc.lottery.desc", "Consume to get a random Seraph.");
+        translationBuilder.add("item.hbr_mc.boost_1_a.desc", "Craft with a Seraph to boost it. Only works from the 9th boost onward.");
+        translationBuilder.add("item.hbr_mc.boost_1_b.desc", "Craft with a Seraph to boost it. Only works from the 9th boost onward.");
+        translationBuilder.add("item.hbr_mc.boost_1_c.desc", "Craft with a Seraph to boost it. Only works from the 9th boost onward.");
+        translationBuilder.add("item.hbr_mc.xp_item_1.desc", "Craft with a Seraph to give it a little XP.");
+        translationBuilder.add("item.hbr_mc.xp_item_2.desc", "Craft with a Seraph to give it a good amount of XP.");
+        translationBuilder.add("item.hbr_mc.shard_ss.desc", "Shard + A-rank Seraph = SS, stats preserved.");
+        translationBuilder.add("item.hbr_mc.crystal_lottery.desc", "Combine 3x2 to get a lottery ticket.");
+
         translationBuilder.add(ModBlocks.CRYSTAL_ORE, "Free Crystal Ore");
         translationBuilder.add(ModBlocks.DEEPSLATE_CRYSTAL_ORE, "Deepslate Free Crystal Ore");
         translationBuilder.add("itemGroup.hbr_mc.tab_1", "Heaven Burns Red");
