@@ -46,6 +46,8 @@ public class ModItemGroups {
                         entries.add(new ItemStack(ModItems.XP_ITEM_1));
                         entries.add(new ItemStack(ModItems.XP_ITEM_2));
 
+                        entries.add(new ItemStack(ModItems.CANCER_SHELL));
+
                         entries.add(new ItemStack(ModItems.ONION));
                         entries.add(new ItemStack(ModItems.KNIFE_CUT_NOODLES));
                     })

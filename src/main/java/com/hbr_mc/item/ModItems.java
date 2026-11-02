@@ -48,6 +48,8 @@ public class ModItems {
     public static final Item XP_ITEM_1 = registerItem("xp_item_1", new Item(new Item.Settings()));
     public static final Item XP_ITEM_2 = registerItem("xp_item_2", new Item(new Item.Settings()));
 
+    public static final Item CANCER_SHELL = registerItem("cancer_shell", new Item(new Item.Settings()));
+
     public static final Item ONION = registerItem("onion", new Item(new Item.Settings().food(ModFoodComponents.ONION)));
     public static final Item KNIFE_CUT_NOODLES = registerItem("knife_cut_noodles", new KnifeCutNoodles(new Item.Settings().food(ModFoodComponents.KNIFE_CUT_NOODLES)));
 

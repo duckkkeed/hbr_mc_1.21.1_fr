@@ -1,21 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_iron_ingot": {
+    "has_crystal_lottery": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:iron_ingot"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_raw_crystal": {
-      "conditions": {
-        "items": [
-          {
-            "items": "hbr_mc:raw_crystal"
+            "items": "hbr_mc:crystal_lottery"
           }
         ]
       },
@@ -23,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "hbr_mc:brave_blue"
+        "recipe": "hbr_mc:lottery"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -31,13 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_iron_ingot",
-      "has_raw_crystal"
+      "has_crystal_lottery"
     ]
   ],
   "rewards": {
     "recipes": [
-      "hbr_mc:brave_blue"
+      "hbr_mc:lottery"
     ]
   }
 }
