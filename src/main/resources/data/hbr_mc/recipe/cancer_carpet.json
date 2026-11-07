@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "II"
+  ],
+  "key": {
+    "I": {
+      "item": "hbr_mc:cancer_shell"
+    }
+  },
+  "result": {
+    "count": 64,
+    "id": "hbr_mc:cancer_carpet"
+  }
+}

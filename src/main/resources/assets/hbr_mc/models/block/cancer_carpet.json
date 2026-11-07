@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/carpet",
+  "textures": {
+    "wool": "hbr_mc:block/cancer_carpet"
+  }
+}

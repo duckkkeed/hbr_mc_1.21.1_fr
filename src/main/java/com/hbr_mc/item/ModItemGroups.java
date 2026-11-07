@@ -30,6 +30,8 @@ public class ModItemGroups {
                         entries.add(new ItemStack(ModItems.LOTTERY));
                         entries.add(new ItemStack(ModBlocks.CRYSTAL_ORE));
                         entries.add(new ItemStack(ModBlocks.DEEPSLATE_CRYSTAL_ORE));
+                        entries.add(new ItemStack(ModBlocks.CANCER_CARPET));
+                        entries.add(new ItemStack(ModBlocks.RANDOM_DROP_BASIC));
 
                         entries.add(new ItemStack(ModItems.GEM_R));
                         entries.add(new ItemStack(ModItems.GEM_Y));

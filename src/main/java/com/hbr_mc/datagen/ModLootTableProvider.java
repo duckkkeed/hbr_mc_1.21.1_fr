@@ -17,5 +17,6 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
     public void generate() {
         oreDrops(ModBlocks.CRYSTAL_ORE, ModItems.RAW_CRYSTAL);
         oreDrops(ModBlocks.DEEPSLATE_CRYSTAL_ORE, ModItems.RAW_CRYSTAL);
+        addDrop(ModBlocks.CANCER_CARPET);
     }
 }
