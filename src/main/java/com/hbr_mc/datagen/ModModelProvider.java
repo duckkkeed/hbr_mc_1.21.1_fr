@@ -51,5 +51,11 @@ public class ModModelProvider extends FabricModelProvider {
         itemModelGenerator.register(ModItems.SHARD_SS, Models.GENERATED);
         itemModelGenerator.register(ModItems.XP_ITEM_1, Models.GENERATED);
         itemModelGenerator.register(ModItems.XP_ITEM_2, Models.GENERATED);
+
+        // 星癌体套装（1.12.2 的 ItemArmorCancer）
+        itemModelGenerator.register(ModItems.CANCER_HELMET, Models.GENERATED);
+        itemModelGenerator.register(ModItems.CANCER_CHESTPLATE, Models.GENERATED);
+        itemModelGenerator.register(ModItems.CANCER_LEGGINGS, Models.GENERATED);
+        itemModelGenerator.register(ModItems.CANCER_BOOTS, Models.GENERATED);
     }
 }

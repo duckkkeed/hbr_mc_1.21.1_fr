@@ -42,6 +42,11 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add(ModItems.XP_ITEM_1, "Exp Book");
         translationBuilder.add(ModItems.XP_ITEM_2, "Exp Book II");
 
+        translationBuilder.add(ModItems.CANCER_HELMET, "Cancer Helmet");
+        translationBuilder.add(ModItems.CANCER_CHESTPLATE, "Cancer Chestplate");
+        translationBuilder.add(ModItems.CANCER_LEGGINGS, "Cancer Leggings");
+        translationBuilder.add(ModItems.CANCER_BOOTS, "Cancer Boots");
+
         // 物品说明行：客户端 ItemDescTooltips 读取 "<翻译键>.desc"，有译文才显示。
         translationBuilder.add("item.hbr_mc.lottery.desc", "Consume to get a random Seraph.");
         translationBuilder.add("item.hbr_mc.boost_1_a.desc", "Craft with a Seraph to boost it. Only works from the 9th boost onward.");

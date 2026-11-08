@@ -2,6 +2,7 @@ package com.hbr_mc.item;
 
 import com.hbr_mc.HBR_MC;
 
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -50,12 +51,24 @@ public class ModItems {
 
     public static final Item CANCER_SHELL = registerItem("cancer_shell", new Item(new Item.Settings()));
 
+    // 星癌体套装（1.12.2 的 ItemArmorCancer）：材质见 ModArmorMaterials。
+    public static final Item CANCER_HELMET = registerArmor("cancer_helmet", ArmorItem.Type.HELMET);
+    public static final Item CANCER_CHESTPLATE = registerArmor("cancer_chestplate", ArmorItem.Type.CHESTPLATE);
+    public static final Item CANCER_LEGGINGS = registerArmor("cancer_leggings", ArmorItem.Type.LEGGINGS);
+    public static final Item CANCER_BOOTS = registerArmor("cancer_boots", ArmorItem.Type.BOOTS);
+
     public static final Item ONION = registerItem("onion", new Item(new Item.Settings().food(ModFoodComponents.ONION)));
     public static final Item KNIFE_CUT_NOODLES = registerItem("knife_cut_noodles", new KnifeCutNoodles(new Item.Settings().food(ModFoodComponents.KNIFE_CUT_NOODLES)));
 
     private static Item registerItem(String id, Item item)
     {
         return Registry.register(Registries.ITEM, Identifier.of(HBR_MC.MOD_ID, id), item);
+    }
+
+    /** 按部位注册盔甲，耐久沿用 1.12.2 的材质系数 9999。 */
+    private static Item registerArmor(String id, ArmorItem.Type type) {
+        return registerItem(id, new ArmorItem(ModArmorMaterials.cancer(), type,
+                new Item.Settings().maxDamage(type.getMaxDamage(ModArmorMaterials.CANCER_DURABILITY))));
     }
 
     public static void registerModItems()
