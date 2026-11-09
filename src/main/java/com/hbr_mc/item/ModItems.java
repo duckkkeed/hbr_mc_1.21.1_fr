@@ -46,8 +46,8 @@ public class ModItems {
     public static final Item BOOST_1_C = registerItem("boost_1_c", new Item(new Item.Settings()));
     public static final Item GEM_DROPLET = registerItem("gem_droplet", new Item(new Item.Settings()));
     public static final Item SHARD_SS = registerItem("shard_ss", new Item(new Item.Settings()));
-    public static final Item XP_ITEM_1 = registerItem("xp_item_1", new Item(new Item.Settings()));
-    public static final Item XP_ITEM_2 = registerItem("xp_item_2", new Item(new Item.Settings()));
+    public static final Item XP_ITEM_1 = registerItem("xp_item_1", new XpBookItem(new Item.Settings(), 500));
+    public static final Item XP_ITEM_2 = registerItem("xp_item_2", new XpBookItem(new Item.Settings(), 2000));
 
     public static final Item CANCER_SHELL = registerItem("cancer_shell", new Item(new Item.Settings()));
 

@@ -159,6 +159,25 @@ public final class SeraphUtil {
         return SeraphBoostConst.getMaxBoost(stack);
     }
 
+    /**
+     * 把成长数据从一件炽天使复制到另一件（用于 A → SS 升阶，对应 1.12.2 {@code SeraphRankUp} 复制 NBT）。
+     *
+     * <p>只复制等级/经验/强化/突破/损坏标记；目标物品的耐久按它自己的稀有度重新计算。
+     */
+    public static void copyProgression(ItemStack from, ItemStack to) {
+        if (!isSeraph(from) || !isSeraph(to)) {
+            return;
+        }
+        // 先写突破，setLevel 里夹等级时才会用上新的上限。
+        to.set(ModComponents.SERAPH_BREAKTHROUGH, getBreakThrough(from));
+        to.set(ModComponents.SERAPH_XP, getXP(from));
+        to.set(ModComponents.SERAPH_BOOST, getBoost(from));
+        setLevel(to, getLevel(from));
+        if (ItemSeraphBase.isBroken(from)) {
+            to.set(ModComponents.SERAPH_BROKEN, true);
+        }
+    }
+
     // ------------------------------------------------------------------ 耐久 --
 
     /**

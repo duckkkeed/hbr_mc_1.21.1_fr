@@ -34,6 +34,7 @@ public class HBR_MC implements ModInitializer {
 		// 自定义数据组件须在物品之前注册（Seraph 的"已损坏"标记）
 		com.hbr_mc.component.ModComponents.register();
 		ModItems.registerModItems();
+		com.hbr_mc.recipe.ModRecipes.register();
 		ModItemGroups.registerModItemGroups();
 		ModBlocks.registerModBlocks();
 		ModPotion.registerModPotions();
