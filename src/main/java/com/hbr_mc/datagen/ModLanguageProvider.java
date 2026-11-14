@@ -63,7 +63,11 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("block.hbr_mc.cancer_carpet.desc", "Cheap carpet. Used to disable mob spawning, especially cancers.");
         translationBuilder.add(ModBlocks.RANDOM_DROP_BASIC, "Some Loot");
         translationBuilder.add("block.hbr_mc.random_1.desc", "Break it to get random things.");
-        translationBuilder.add("entity.hbr_mc.cancer", "Cancer");
+        translationBuilder.add("entity.hbr_mc.c_slasher", "Slasher");
+        translationBuilder.add("entity.hbr_mc.c_crest_hopper", "CrestHopper");
+        translationBuilder.add("entity.hbr_mc.c_small_hopper", "SmallHopper");
+        translationBuilder.add("entity.hbr_mc.c_doll", "Doll");
+        translationBuilder.add("entity.hbr_mc.c_marionette", "Marionette");
         translationBuilder.add("itemGroup.hbr_mc.tab_1", "Heaven Burns Red");
         translationBuilder.add("itemGroup.hbr_mc.tab_2", "Heaven Burns Red Spawn");
     }

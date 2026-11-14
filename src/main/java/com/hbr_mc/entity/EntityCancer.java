@@ -15,35 +15,32 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 
 /**
- * 星癌体（Cancer），对应 1.12.2 的 {@code entities/cancer/EntityCancer}。
+ * 星癌体变体基类，对应 1.12.2 的 {@code entities/cancer/EntityCancer}。
  *
- * <p>本次移植的是**服务端实体本体**：
+ * <p>五个变体（Slasher / CrestHopper / SmallHopper / Doll / Marionette）继承本类；
+ * <b>本类本身不再注册实体</b>（旧的 {@code hbr_mc:cancer} 已移除）。共用逻辑：
  * <ul>
- *   <li>EntityType 注册（{@code hbr_mc:cancer}）、基础属性、0.6×1.8 碰撞箱；</li>
- *   <li>20 点「壳」护盾（用原版吸收值表示，先扣盾再扣血）；</li>
- *   <li>死亡掉落 1 个癌壳（战利品表 {@code hbr_mc:entities/cancer}）；</li>
- *   <li>被玩家击杀时，给附近 32 格内手持炽天使的玩家加 10 点武器经验（对应原版 {@code getXPWorth()}）。</li>
+ *   <li>按子类的 {@link #getInitShield()} 写入「壳」护盾（用原版吸收值表示）；</li>
+ *   <li>被玩家击杀时，给附近 32 格内手持炽天使的玩家加 {@link #getXpWorth()} 点武器经验；</li>
+ *   <li>AI 暂未移植（{@link #initGoals()} 为空）。</li>
  * </ul>
- *
- * <p><b>未移植</b>：AI（{@link #initGoals()} 为空）、自然生成/刷怪蛋、客户端模型与渲染、
- * 六维属性与技能升级、护盾破碎的眩晕/粒子效果；另外 1.21.1 的 {@code canBreatheInWater} 是 final，
- * 原版「水下呼吸」这一点也没有复刻。
  */
-public class EntityCancer extends HostileEntity {
+public abstract class EntityCancer extends HostileEntity {
 
-    public EntityCancer(EntityType<? extends EntityCancer> entityType, World world) {
+    protected EntityCancer(EntityType<? extends EntityCancer> entityType, World world) {
         super(entityType, world);
     }
 
-    /** 通用小怪数值：20 生命、3 攻击、0.25 移速、16 索敌。 */
-    public static DefaultAttributeContainer.Builder createCancerAttributes() {
+    /** 子类共用的属性构造器；护盾上限 = 该种类的初始护盾。 */
+    protected static DefaultAttributeContainer.Builder cancerAttributes(
+            double health, double attack, double speed, double follow, double shield) {
         return HostileEntity.createHostileAttributes()
-                .add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 16.0)
-                // 1.21.1 的吸收值会被上限属性夹断，先把上限抬到 20 才能设出护盾。
-                .add(EntityAttributes.GENERIC_MAX_ABSORPTION, 20.0);
+                .add(EntityAttributes.GENERIC_MAX_HEALTH, health)
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, attack)
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, speed)
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, follow)
+                // 1.21.1 的吸收值会被上限属性夹断，先把上限抬到护盾值才能设出来。
+                .add(EntityAttributes.GENERIC_MAX_ABSORPTION, shield);
     }
 
     /** AI 暂不移植。 */
@@ -55,14 +52,24 @@ public class EntityCancer extends HostileEntity {
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty,
                                  SpawnReason spawnReason, EntityData entityData) {
         EntityData data = super.initialize(world, difficulty, spawnReason, entityData);
-        // 对应 1.12.2 的 getInitShield() = 20：用吸收值当「壳」，破盾前不掉血。
-        setAbsorptionAmount(20.0F);
+        // 对应 1.12.2 的 getInitShield()：用吸收值当「壳」，破盾前不掉血。
+        setAbsorptionAmount(getInitShield());
         return data;
     }
 
-    /** 击杀奖励的武器经验，对应原版 {@code ICancer#getXPWorth()}（等级 1 → 10）。 */
+    /** 初始护盾（对应原版 {@code getInitShield()} / {@code setDPMax()}）。 */
+    protected float getInitShield() {
+        return 20.0F;
+    }
+
+    /** 等级（对应原版 {@code ICancer#getLevel()}），影响击杀经验。 */
+    public int getLevel() {
+        return 1;
+    }
+
+    /** 击杀奖励的武器经验，对应原版 {@code ICancer#getXPWorth()} = 等级 × 10。 */
     public int getXpWorth() {
-        return 10;
+        return getLevel() * 10;
     }
 
     @Override

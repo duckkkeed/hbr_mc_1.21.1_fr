@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [{ "type": "minecraft:item", "name": "hbr_mc:cancer_shell" }],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [{ "condition": "minecraft:random_chance", "chance": 0.4 }],
+      "entries": [{ "type": "minecraft:item", "name": "hbr_mc:boost_1_a" }],
+      "rolls": 1.0
+    }
+  ]
+}
