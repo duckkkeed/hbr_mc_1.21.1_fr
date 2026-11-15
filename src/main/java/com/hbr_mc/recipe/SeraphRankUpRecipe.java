@@ -51,13 +51,32 @@ public class SeraphRankUpRecipe extends SpecialCraftingRecipe {
         return result;
     }
 
-    /** 1.12.2 为每对 A/SS 武器分别注册配方；这里只列出已存在的两组。 */
+    /**
+     * A → SS 的对应关系。
+     *
+     * <p>1.12.2 在 {@code RegisterRecipes#getRegister} 里为每一对 A/SS 各注册一条配方，
+     * 但会<b>跳过 SS 还是 {@code ItemWIP} 占位的族</b>（原版是
+     * {@code if (ss instanceof ItemWIP) return;}）。因此这里也<b>不</b>给
+     * {@code supreme_edge} 配升阶（它的 SS 形态在原版就是占位物品）。
+     */
     private static Item rankUpTarget(Item item) {
         if (item == ModItems.BRAVE_BLUE) {
             return ModItems.BRAVE_BLUE_SS;
         }
         if (item == ModItems.RAPID_FIRE) {
             return ModItems.RAPID_FIRE_SS;
+        }
+        if (item == ModItems.CLAVIS) {
+            return ModItems.CLAVIS_SS;
+        }
+        if (item == ModItems.GLITTER_SHADOW) {
+            return ModItems.GLITTER_SHADOW_SS;
+        }
+        if (item == ModItems.PHANTOM_WEAVER) {
+            return ModItems.PHANTOM_WEAVER_SS;
+        }
+        if (item == ModItems.FATAL_NULL) {
+            return ModItems.FATAL_NULL_SS;
         }
         return null;
     }

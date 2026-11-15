@@ -1,5 +1,7 @@
 package com.hbr_mc.command;
 
+import com.hbr_mc.attribute.ModAttributes;
+import com.hbr_mc.item.seraph.ItemSeraphBase;
 import com.hbr_mc.item.seraph.SeraphUtil;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -10,22 +12,25 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 /**
- * {@code /seraph}：读写主手 Seraph 武器的成长数据，供测试与管理使用。
- *
- * <p>原版 1.12.2 的升级经验来自击杀 Cancer、强化来自「武器 + 5 个癌壳」配方、突破来自同名武器/碎片配方；
- * 这些实体与材料在 1.21.1 工程里还没有移植，所以先提供命令入口：
+ * {@code /seraph}：读写主手 Seraph 武器的成长与技能数据，供测试与管理使用。
  *
  * <pre>
- * /seraph info                  查看主手武器当前等级 / 经验 / 强化 / 突破
- * /seraph level &lt;等级&gt;          直接设置等级（自动夹到上限）
- * /seraph xp &lt;数量&gt;             增加经验（可连升多级，会发升级提示）
- * /seraph boost &lt;次数&gt;          设置强化次数（夹到 0..上限）
- * /seraph breakthrough &lt;次数&gt;   设置突破次数（会抬高等级上限）
+ * /seraph info                    查看主手武器当前等级 / 经验 / 强化 / 突破
+ * /seraph level &lt;等级&gt;            直接设置等级（自动夹到上限）
+ * /seraph xp &lt;数量&gt;               增加经验（可连升多级，会发升级提示）
+ * /seraph boost &lt;次数&gt;            设置强化次数（夹到 0..上限）
+ * /seraph breakthrough &lt;次数&gt;     设置突破次数（会抬高等级上限）
+ * /seraph attr                    查看自己当前的六维，以及主手武器提供的固定值/百分比
+ * /seraph skill &lt;槽位&gt; &lt;等级&gt;     设置某个技能槽的等级（1..10）
  * </pre>
  *
  * <p>需要权限等级 2（与 {@code /seraphtp} 一致，管理员可用）。
+ *
+ * <p>原版 1.12.2 的升级经验来自击杀 Cancer、强化来自配方、突破来自同名武器/碎片配方；
+ * 这些入口在 1.21.1 工程里也已具备（见 {@code docs/seraph-port.md}），命令保留作调试与兜底。
  */
 public final class CommandSeraph {
 
@@ -57,6 +62,14 @@ public final class CommandSeraph {
                                 .then(CommandManager.argument("value", IntegerArgumentType.integer(0))
                                         .executes(ctx -> setBreakThrough(ctx.getSource(),
                                                 IntegerArgumentType.getInteger(ctx, "value")))))
+                        .then(CommandManager.literal("attr")
+                                .executes(ctx -> showAttr(ctx.getSource())))
+                        .then(CommandManager.literal("skill")
+                                .then(CommandManager.argument("slot", IntegerArgumentType.integer(0, 2))
+                                        .then(CommandManager.argument("level", IntegerArgumentType.integer(1, 10))
+                                                .executes(ctx -> setSkill(ctx.getSource(),
+                                                        IntegerArgumentType.getInteger(ctx, "slot"),
+                                                        IntegerArgumentType.getInteger(ctx, "level"))))))
                 ));
     }
 
@@ -90,6 +103,12 @@ public final class CommandSeraph {
         return info(source);
     }
 
+    private static int setSkill(ServerCommandSource source, int slot, int level) throws CommandSyntaxException {
+        ItemStack stack = mainHandSeraph(source);
+        SeraphUtil.setSkillLevel(stack, slot, level);
+        return info(source);
+    }
+
     private static int info(ServerCommandSource source) throws CommandSyntaxException {
         ItemStack stack = mainHandSeraph(source);
         int level = SeraphUtil.getLevel(stack);
@@ -101,6 +120,46 @@ public final class CommandSeraph {
                 SeraphUtil.getMaxBoost(stack),
                 SeraphUtil.getBreakThrough(stack),
                 SeraphUtil.getMaxBreakThrough(stack)), false);
+
+        // 技能槽：等级与剩余次数
+        if (stack.getItem() instanceof ItemSeraphBase seraph) {
+            for (int slot = 0; slot < seraph.getMaxSkillSlot(stack); slot++) {
+                int finalSlot = slot;
+                source.sendFeedback(() -> Text.translatable("command.hbr_mc.seraph.skill",
+                        finalSlot,
+                        SeraphUtil.getSkillLevel(stack, finalSlot),
+                        seraph.getSkillLeft(stack, finalSlot),
+                        seraph.getSkillLimit(stack, finalSlot)).formatted(Formatting.GRAY), false);
+            }
+        }
+        return 1;
+    }
+
+    /**
+     * 打印六维：先玩家实体的属性值（武器加成已叠加进去），再列出主手武器的两项贡献，
+     * 方便区分"表格给的基础百分比"和"最终属性"。
+     */
+    private static int showAttr(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        ItemStack stack = player.getMainHandStack();
+
+        source.sendFeedback(() -> Text.translatable("command.hbr_mc.seraph.attr",
+                ModAttributes.describe(player)).formatted(Formatting.AQUA), false);
+
+        if (stack.getItem() instanceof ItemSeraphBase seraph) {
+            StringBuilder sb = new StringBuilder();
+            for (var attribute : ModAttributes.SIX) {
+                if (sb.length() > 0) {
+                    sb.append("  ");
+                }
+                sb.append(attribute.value().getTranslationKey())
+                        .append(": +").append(String.format("%.0f", seraph.getAttrValue(stack, attribute)))
+                        .append(" +").append(String.format("%.0f", seraph.getAttrValuePercent(stack, attribute) * 100.0F))
+                        .append('%');
+            }
+            String line = sb.toString();
+            source.sendFeedback(() -> Text.literal(line).formatted(Formatting.GRAY), false);
+        }
         return 1;
     }
 }

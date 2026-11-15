@@ -1,6 +1,7 @@
 package com.hbr_mc.entity;
 
 import com.hbr_mc.HBR_MC;
+import com.hbr_mc.entity.projectile.EntityHBRProjectile;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -59,6 +60,18 @@ public final class ModEntities {
                     .eyeHeight(1.02F)
                     .maxTrackingRange(64)
                     .build("c_marionette"));
+
+    /**
+     * 炽天使弹丸（对应 1.12.2 {@code entities/projectiles/EntityHBRProjectile}）。
+     *
+     * <p>尺寸沿用 1.12.2 构造里的 {@code setSize(0.1f, 0.1f)}；
+     * 不是生物，所以不需要 {@code FabricDefaultAttributeRegistry}。
+     */
+    public static final EntityType<EntityHBRProjectile> HBR_PROJECTILE = register("hbr_projectile",
+            EntityType.Builder.create(EntityHBRProjectile::new, SpawnGroup.MISC)
+                    .dimensions(0.2F, 0.2F)
+                    .maxTrackingRange(64)
+                    .build("hbr_projectile"));
 
     private ModEntities() {
     }

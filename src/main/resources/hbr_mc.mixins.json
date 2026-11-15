@@ -3,6 +3,7 @@
 	"package": "com.hbr_mc.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"AttributeContainerMixin",
 		"ExampleMixin"
 	],
 	"injectors": {

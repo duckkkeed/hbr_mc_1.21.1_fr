@@ -14,25 +14,108 @@ import com.hbr_mc.item.seraph.SeraphItemSettings;
 import com.hbr_mc.item.seraph.a_31.BRAVE_BLUE;
 import com.hbr_mc.item.seraph.a_31.BRAVE_BLUE_S;
 import com.hbr_mc.item.seraph.a_31.BRAVE_BLUE_SS;
+import com.hbr_mc.item.seraph.a_31.CLAVIS;
+import com.hbr_mc.item.seraph.a_31.CLAVIS_S;
+import com.hbr_mc.item.seraph.a_31.CLAVIS_SS;
+import com.hbr_mc.item.seraph.a_31.GLITTER_SHADOW;
+import com.hbr_mc.item.seraph.a_31.GLITTER_SHADOW_S;
+import com.hbr_mc.item.seraph.a_31.GLITTER_SHADOW_SS;
+import com.hbr_mc.item.seraph.a_31.PHANTOM_WEAVER;
+import com.hbr_mc.item.seraph.a_31.PHANTOM_WEAVER_S;
+import com.hbr_mc.item.seraph.a_31.PHANTOM_WEAVER_SS;
 import com.hbr_mc.item.seraph.a_31.RAPID_FIRE;
 import com.hbr_mc.item.seraph.a_31.RAPID_FIRE_S;
 import com.hbr_mc.item.seraph.a_31.RAPID_FIRE_SS;
+import com.hbr_mc.item.seraph.a_31.SUPREME_EDGE;
+import com.hbr_mc.item.seraph.a_31.SUPREME_EDGE_S;
+import com.hbr_mc.item.seraph.a_31.SUPREME_EDGE_SS;
+import com.hbr_mc.item.seraph.b_31.FATAL_NULL;
+import com.hbr_mc.item.seraph.b_31.FATAL_NULL_SS;
+import com.hbr_mc.item.seraph.g_30.KAZABANA;
 
+/**
+ * 物品注册表。
+ *
+ * <h2>Seraph 系物品</h2>
+ * 全部继承 {@code ItemSeraphBase}，稀有度在各自类里给出（A / S / SS）；
+ * {@code Settings} 统一走 {@link SeraphItemSettings}（不可堆叠 / 稀有度 / 按稀有度的耐久）。
+ *
+ * <p>与 1.12.2 的 {@code RegisterItem} 对照：
+ * <table>
+ *   <caption>武器族</caption>
+ *   <tr><th>族</th><th>A</th><th>S</th><th>SS</th><th>1.12.2 类</th></tr>
+ *   <tr><td>BraveBlue</td><td>✔ 有技能</td><td>✔ 占位</td><td>✔ 有技能</td><td>ItemBraveBlue / ItemSeraphForNPC / ItemBraveBlueSS</td></tr>
+ *   <tr><td>RapidFire</td><td>✔ 有技能</td><td>✔ 占位</td><td>✔ 有技能</td><td>ItemRapidFire / ItemWIPRanged / ItemRapidFireSS</td></tr>
+ *   <tr><td>Clavis</td><td>✔ 有技能</td><td>✔ 占位</td><td>✔ 有技能</td><td>ItemClavis / ItemSeraphForNPC / ItemClavisSS</td></tr>
+ *   <tr><td>GlitterShadow</td><td>✔ 有技能</td><td>✔ 占位</td><td>✔ 有技能</td><td>ItemGlitterShadowA / ItemSeraphForNPC / ItemGlitterShadowSS</td></tr>
+ *   <tr><td>PhantomWeaver</td><td>✔ 有技能</td><td>✔ 占位</td><td>✔ 有技能</td><td>ItemPhantomWeaver / ItemSeraphForNPC / ItemPhantomWeaverSS</td></tr>
+ *   <tr><td>SupremeEdge</td><td>✔ 有技能</td><td>✔ 占位</td><td>✔ 占位</td><td>ItemSupremeEdge / ItemWIPRanged</td></tr>
+ *   <tr><td>FatalNull</td><td>✔ 有技能</td><td>—</td><td>✔ 占位</td><td>ItemFatalNull / ItemWIPRanged</td></tr>
+ *   <tr><td>Kazabana</td><td>✔ 有技能</td><td>—</td><td>—</td><td>ItemKazabana</td></tr>
+ * </table>
+ *
+ * <p><b>注册 id 的差异</b>：1.12.2 里 SupremeEdge 的 id 与贴图都拼成了 {@code superme_edge}（少一个 r）；
+ * 本工程统一改成正确的 {@code supreme_edge}，并把贴图一并改名。
+ */
 public class ModItems {
 
-    // Seraph 系物品：统一继承 ItemSeraphBase，稀有度在各自类里给出（A / S / SS）；
-    // Settings 统一走 SeraphItemSettings（不可堆叠 / 稀有度 / 按稀有度的耐久）。
-    public static final Item BRAVE_BLUE = registerItem("brave_blue", new BRAVE_BLUE(SeraphItemSettings.of(EnumSeraphRarity.A)));
-    public static final Item BRAVE_BLUE_S = registerItem("brave_blue_s", new BRAVE_BLUE_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
-    public static final Item BRAVE_BLUE_SS = registerItem("brave_blue_ss", new BRAVE_BLUE_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+    // ---------------------------------------------------------------- 炽天使 --
 
-    public static final Item RAPID_FIRE = registerItem("rapid_fire", new RAPID_FIRE(SeraphItemSettings.of(EnumSeraphRarity.A)));
-    public static final Item RAPID_FIRE_S = registerItem("rapid_fire_s", new RAPID_FIRE_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
-    public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss", new RAPID_FIRE_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+    public static final Item BRAVE_BLUE = registerItem("brave_blue",
+            new BRAVE_BLUE(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item BRAVE_BLUE_S = registerItem("brave_blue_s",
+            new BRAVE_BLUE_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item BRAVE_BLUE_SS = registerItem("brave_blue_ss",
+            new BRAVE_BLUE_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+
+    public static final Item RAPID_FIRE = registerItem("rapid_fire",
+            new RAPID_FIRE(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item RAPID_FIRE_S = registerItem("rapid_fire_s",
+            new RAPID_FIRE_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item RAPID_FIRE_SS = registerItem("rapid_fire_ss",
+            new RAPID_FIRE_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+
+    public static final Item CLAVIS = registerItem("clavis",
+            new CLAVIS(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item CLAVIS_S = registerItem("clavis_s",
+            new CLAVIS_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item CLAVIS_SS = registerItem("clavis_ss",
+            new CLAVIS_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+
+    public static final Item SUPREME_EDGE = registerItem("supreme_edge",
+            new SUPREME_EDGE(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item SUPREME_EDGE_S = registerItem("supreme_edge_s",
+            new SUPREME_EDGE_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item SUPREME_EDGE_SS = registerItem("supreme_edge_ss",
+            new SUPREME_EDGE_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+
+    public static final Item GLITTER_SHADOW = registerItem("glitter_shadow",
+            new GLITTER_SHADOW(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item GLITTER_SHADOW_S = registerItem("glitter_shadow_s",
+            new GLITTER_SHADOW_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item GLITTER_SHADOW_SS = registerItem("glitter_shadow_ss",
+            new GLITTER_SHADOW_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+
+    public static final Item PHANTOM_WEAVER = registerItem("phantom_weaver",
+            new PHANTOM_WEAVER(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item PHANTOM_WEAVER_S = registerItem("phantom_weaver_s",
+            new PHANTOM_WEAVER_S(SeraphItemSettings.of(EnumSeraphRarity.S)));
+    public static final Item PHANTOM_WEAVER_SS = registerItem("phantom_weaver_ss",
+            new PHANTOM_WEAVER_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+
+    public static final Item FATAL_NULL = registerItem("fatal_null",
+            new FATAL_NULL(SeraphItemSettings.of(EnumSeraphRarity.A)));
+    public static final Item FATAL_NULL_SS = registerItem("fatal_null_ss",
+            new FATAL_NULL_SS(SeraphItemSettings.of(EnumSeraphRarity.SS)));
+
+    public static final Item KAZABANA = registerItem("kazabana",
+            new KAZABANA(SeraphItemSettings.of(EnumSeraphRarity.A)));
+
+    // ------------------------------------------------------------------ 材料 --
 
     public static final Item RAW_CRYSTAL = registerItem("raw_crystal", new Item(new Item.Settings()));
     public static final Item CRYSTAL_LOTTERY = registerItem("crystal_lottery", new Item(new Item.Settings()));
-    public static final Item LOTTERY = registerItem("lottery", new Item(new Item.Settings()));
+    public static final Item LOTTERY = registerItem("lottery", new LotteryItem(new Item.Settings()));
 
     public static final Item GEM_R = registerItem("gem_red", new Item(new Item.Settings()));
     public static final Item GEM_Y = registerItem("gem_yellow", new Item(new Item.Settings()));

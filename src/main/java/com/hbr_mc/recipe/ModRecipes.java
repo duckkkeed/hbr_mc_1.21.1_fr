@@ -33,6 +33,10 @@ public final class ModRecipes {
     public static final RecipeSerializer<SeraphRankUpRecipe> SERAPH_RANK_UP =
             register("seraph_rank_up", new SpecialRecipeSerializer<>(SeraphRankUpRecipe::new));
 
+    /** 分解：一把炽天使 → SS 万能碎片（A 得 1、SS 得 4），对应 1.12.2 {@code SeraphDecomp}。 */
+    public static final RecipeSerializer<SeraphDecompRecipe> SERAPH_DECOMP =
+            register("seraph_decomp", new SpecialRecipeSerializer<>(SeraphDecompRecipe::new));
+
     private ModRecipes() {
     }
 

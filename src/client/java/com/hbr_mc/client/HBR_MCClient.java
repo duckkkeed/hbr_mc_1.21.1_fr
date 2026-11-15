@@ -2,6 +2,7 @@ package com.hbr_mc.client;
 
 import com.hbr_mc.HBR_MC;
 import com.hbr_mc.client.renderer.CancerRenderers;
+import com.hbr_mc.client.renderer.HBRProjectileRenderer;
 import com.hbr_mc.client.tooltip.ItemDescTooltips;
 import com.hbr_mc.client.tooltip.SeraphTooltipStyles;
 import com.hbr_mc.client.tooltip.TooltipStyleManager;
@@ -32,6 +33,9 @@ public class HBR_MCClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.C_SMALL_HOPPER, CancerRenderers.SmallHopper::new);
         EntityRendererRegistry.register(ModEntities.C_DOLL, CancerRenderers.Doll::new);
         EntityRendererRegistry.register(ModEntities.C_MARIONETTE, CancerRenderers.Marionette::new);
+
+        // 炽天使弹丸（对应 1.12.2 RenderBullet）
+        EntityRendererRegistry.register(ModEntities.HBR_PROJECTILE, HBRProjectileRenderer::new);
 
         // 其它物品沿用原版提示框外观。
         // 若想给"所有物品"统一换配色，去掉下面这行注释并改成你的颜色：

@@ -54,6 +54,41 @@ public final class ModComponents {
     /** 突破次数，对应 1.12.2 的 {@code brk_thru}；缺失时按 0 处理。 */
     public static final ComponentType<Integer> SERAPH_BREAKTHROUGH = intComponent("seraph_breakthrough");
 
+    /**
+     * 技能等级，对应 1.12.2 NBT 的 {@code sLv_1} / {@code sLv_2} / {@code sLv_3}（下标 0..2）。
+     *
+     * <p>1.12.2 是"数组式"的 NBT 键，1.21.1 的组件没有数组形态，所以按槽位拆成三个强类型组件。
+     * 缺失时按 1 级处理（见 {@code SeraphUtil#getSkillLevel}），上限 10。
+     */
+    public static final ComponentType<Integer> SERAPH_SKILL_LEVEL_0 = intComponent("seraph_skill_level_0");
+    public static final ComponentType<Integer> SERAPH_SKILL_LEVEL_1 = intComponent("seraph_skill_level_1");
+    public static final ComponentType<Integer> SERAPH_SKILL_LEVEL_2 = intComponent("seraph_skill_level_2");
+
+    /**
+     * 技能已使用次数，对应 1.12.2 的 {@code usage_1} / {@code usage_2} / {@code usage_3}（下标 0..2）。
+     *
+     * <p>原版靠 {@code getSkillLimit - usage} 得到剩余次数；使用后 {@code skillUseMark} 自增。
+     * 缺失时按 0 处理。
+     */
+    public static final ComponentType<Integer> SERAPH_SKILL_USAGE_0 = intComponent("seraph_skill_usage_0");
+    public static final ComponentType<Integer> SERAPH_SKILL_USAGE_1 = intComponent("seraph_skill_usage_1");
+    public static final ComponentType<Integer> SERAPH_SKILL_USAGE_2 = intComponent("seraph_skill_usage_2");
+
+    /** 技能等级组件（下标 = 技能槽位 0..2）。 */
+    public static final ComponentType<Integer>[] SERAPH_SKILL_LEVELS = newArray(
+            SERAPH_SKILL_LEVEL_0, SERAPH_SKILL_LEVEL_1, SERAPH_SKILL_LEVEL_2);
+
+    /** 技能使用次数组件（下标 = 技能槽位 0..2）。 */
+    public static final ComponentType<Integer>[] SERAPH_SKILL_USAGES = newArray(
+            SERAPH_SKILL_USAGE_0, SERAPH_SKILL_USAGE_1, SERAPH_SKILL_USAGE_2);
+
+    @SuppressWarnings("unchecked")
+    private static ComponentType<Integer>[] newArray(ComponentType<Integer> a, ComponentType<Integer> b,
+                                                    ComponentType<Integer> c) {
+        return new ComponentType[]{a, b, c};
+    }
+
+
     private ModComponents() {
     }
 
