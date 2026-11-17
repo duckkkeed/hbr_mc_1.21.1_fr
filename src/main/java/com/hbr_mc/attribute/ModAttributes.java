@@ -49,7 +49,13 @@ public final class ModAttributes {
     public static final RegistryEntry<EntityAttribute> MEN = register("men", "精神");
     public static final RegistryEntry<EntityAttribute> INT = register("int", "智力");
     public static final RegistryEntry<EntityAttribute> LUC = register("luc", "幸运");
-    public static final RegistryEntry<EntityAttribute> DP_MAX = register("dpmax", "DP 上限");
+    /**
+     * DP 上限（护盾式耐久条）。星癌体用 {@code setDPMax} 把它设成初始护盾。
+     *
+     * <p><b>唯一一个 {@code setTracked(true)} 的属性</b>：客户端画头顶 DP 条时需要知道上限，
+     * 而六维只在服务端算伤害，不需要同步（省网络包）。
+     */
+    public static final RegistryEntry<EntityAttribute> DP_MAX = registerTracked("dpmax", "DP 上限");
     /** 这是"已损失量"而不是当前值（原版注释：{@code This is the loss, not the current value.}）。 */
     public static final RegistryEntry<EntityAttribute> DP_LOSS_SYNC = register("dpsync", "DP 损失");
 
@@ -65,9 +71,22 @@ public final class ModAttributes {
     }
 
     private static RegistryEntry<EntityAttribute> register(String path, String cnName) {
+        return register(path, cnName, false);
+    }
+
+    /**
+     * 注册一个<b>需要同步给客户端</b>的属性（{@code setTracked(true)}）。
+     *
+     * <p>目前只有 {@code DP_MAX} 用它：HUD 要在客户端知道"这条 DP 条的最大值"。
+     */
+    private static RegistryEntry<EntityAttribute> registerTracked(String path, String cnName) {
+        return register(path, cnName, true);
+    }
+
+    private static RegistryEntry<EntityAttribute> register(String path, String cnName, boolean tracked) {
         EntityAttribute attribute = new ClampedEntityAttribute(
                 "attribute.hbr_mc." + path, 0.0D, MIN_VALUE, MAX_VALUE)
-                .setTracked(false)
+                .setTracked(tracked)
                 .setCategory(EntityAttribute.Category.POSITIVE);
         return Registry.registerReference(Registries.ATTRIBUTE, HBR_MC.id(path), attribute);
     }

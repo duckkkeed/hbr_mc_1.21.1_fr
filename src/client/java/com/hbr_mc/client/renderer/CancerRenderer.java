@@ -26,6 +26,8 @@ public abstract class CancerRenderer<T extends EntityCancer, M extends EntityMod
         this.texture = texture;
         this.modelScale = modelScale;
         this.yOffset = yOffset;
+        // 壳被打破后的破碎/发光层（对应 1.12.2 LayerBreak）：五个变体共用基类，加一次全都有
+        this.addFeature(new CancerBreakLayer<>(this));
     }
 
     @Override

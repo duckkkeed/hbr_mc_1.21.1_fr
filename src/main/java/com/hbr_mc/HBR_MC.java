@@ -50,6 +50,8 @@ public class HBR_MC implements ModInitializer {
 		com.hbr_mc.command.CommandSeraph.register();
 		// 伤害转耐久：主手持有 Seraph 物品时，受到的伤害转为该物品的耐久消耗
 		com.hbr_mc.event.SeraphDamageAbsorb.register();
+		// DP 的"出站"一侧：玩家普通近战按六维公式结算（对应 1.12.2 DesignPlayerDamageRework）
+		com.hbr_mc.event.SeraphAttackRework.register();
 		// 开发期自检（只有设置环境变量 HBR_MC_SELFTEST=true 时才生效，否则什么都不做）
 		com.hbr_mc.debug.SeraphSelfTest.register();
 		LOGGER.info("Hello Fabric world!");

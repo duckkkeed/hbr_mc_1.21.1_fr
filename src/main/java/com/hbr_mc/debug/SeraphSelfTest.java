@@ -3,6 +3,8 @@ package com.hbr_mc.debug;
 import com.hbr_mc.HBR_MC;
 import com.hbr_mc.attribute.ModAttributes;
 import com.hbr_mc.combat.CombatUtil;
+import com.hbr_mc.combat.DpService;
+import com.hbr_mc.entity.EntitySmallHopper;
 import com.hbr_mc.entity.ModEntities;
 import com.hbr_mc.entity.projectile.EntityHBRProjectile;
 import com.hbr_mc.item.LotteryItem;
@@ -14,6 +16,8 @@ import com.hbr_mc.item.seraph.ItemSeraphBase;
 import com.hbr_mc.item.seraph.SeraphAttrData;
 import com.hbr_mc.item.seraph.SeraphBoostUnit;
 import com.hbr_mc.item.seraph.SeraphUtil;
+import com.hbr_mc.potion.EffectUtil;
+import com.hbr_mc.potion.ModPotion;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -64,6 +68,8 @@ public final class SeraphSelfTest {
 
     private static final List<String> FAILURES = new ArrayList<>();
     private static int checks = 0;
+    /** 测试区域只在第一次计算时打一条日志，避免每次取坐标都刷屏。 */
+    private static boolean areaLogged = false;
 
     private SeraphSelfTest() {
     }
@@ -88,6 +94,7 @@ public final class SeraphSelfTest {
             checkDamage(server);
             checkRecipes(server);
             checkProjectile(server);
+            checkDp(server);
         } catch (Throwable t) {
             FAILURES.add("自检过程抛异常: " + t);
             HBR_MC.LOGGER.error("[自测] 自检过程抛异常", t);
@@ -262,11 +269,13 @@ public final class SeraphSelfTest {
 
     private static void checkProjectile(MinecraftServer server) {
         ServerWorld world = server.getOverworld();
-        // 用真实地表高度 +3 放测试实体：写死 y=100 有可能正好在山体里，
-        // 弹丸第一 tick 就会被"撞方块"判定吃掉（这是自测里踩过的坑）。
-        double groundY = world.getTopY(net.minecraft.world.Heightmap.Type.MOTION_BLOCKING, 0, 0) + 3.0D;
-        ZombieEntity shooter = spawnZombie(server, new Vec3d(0.5, groundY, 0.5));
-        ZombieEntity target = spawnZombie(server, new Vec3d(3.5, groundY, 0.5));
+        // 用统一的安全高度与出生点附近的位置放测试实体：写死 y 或只取一列地表都可能落在
+        // 山体里，弹丸第一 tick 就会被"撞方块"判定吃掉（自测里踩过两次）。
+        double groundY = safeY(server);
+        double baseX = baseX(server);
+        double baseZ = baseZ(server);
+        ZombieEntity shooter = spawnZombie(server, new Vec3d(baseX, groundY, baseZ));
+        ZombieEntity target = spawnZombie(server, new Vec3d(baseX + 3.0D, groundY, baseZ));
 
         EntityHBRProjectile bullet = ModEntities.HBR_PROJECTILE.create(world);
         check("弹丸实体可创建", bullet != null);
@@ -275,7 +284,7 @@ public final class SeraphSelfTest {
             target.discard();
             return;
         }
-        bullet.refreshPositionAndAngles(0.5, groundY + 1.0, 0.5, 0.0F, 0.0F);
+        bullet.refreshPositionAndAngles(baseX, groundY + 1.0, baseZ, 0.0F, 0.0F);
         bullet.setVelocity(new Vec3d(1.0, 0.0, 0.0));
         bullet.minPotency = 20.0F;
         bullet.cap = 150.0F;
@@ -293,13 +302,99 @@ public final class SeraphSelfTest {
         target.discard();
     }
 
+    /**
+     * DP 系统：星癌体的壳（吸收值 = DP）、破壳规则、破壳反馈、DP 服务扣减与损失同步。
+     *
+     * <p>玩家侧的"武器耐久当 DP"走 {@code SeraphDamageAbsorb}，需要真实玩家才能触发，
+     * 无头服务端测不了（进游戏后用 {@code /seraph} 或挨打即可验证）。
+     */
+    private static void checkDp(MinecraftServer server) {
+        ServerWorld world = server.getOverworld();
+        EntitySmallHopper cancer = ModEntities.C_SMALL_HOPPER.create(world);
+        check("星癌体实体可创建", cancer != null);
+        if (cancer == null) {
+            return;
+        }
+        Vec3d pos = testPos(server, 6.0D);
+        cancer.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0.0F, 0.0F);
+        world.spawnEntity(cancer);
+        cancer.initialize(world, world.getLocalDifficulty(cancer.getBlockPos()),
+                net.minecraft.entity.SpawnReason.COMMAND, null);
+
+        check("壳 = DP，上限 20（实际 " + DpService.dpMax(cancer) + "）", DpService.dpMax(cancer) == 20.0F);
+        check("壳 = DP，当前 20（实际 " + DpService.dp(cancer) + "）", DpService.dp(cancer) == 20.0F);
+
+        ZombieEntity mob = spawnZombie(server, testPos(server, 8.0D));
+        check("普通来源不能破壳", !DpService.canBreak(cancer.getDamageSources().mobAttack(mob)));
+        check("虚空伤害可以破壳", DpService.canBreak(cancer.getDamageSources().outOfWorld()));
+
+        boolean immune = cancer.isInvulnerableTo(cancer.getDamageSources().mobAttack(mob));
+        check("壳未破时免疫普通来源", immune);
+
+        float healthBefore = cancer.getHealth();
+        boolean damaged = cancer.damage(cancer.getDamageSources().mobAttack(mob), 5.0F);
+        check("普通来源被完全挡下（不扣壳不扣血）",
+                !damaged && cancer.getHealth() == healthBefore && cancer.getAbsorptionAmount() == 20.0F);
+
+        boolean broken = cancer.damage(cancer.getDamageSources().outOfWorld(), 25.0F);
+        check("可破壳来源打穿壳（吸收归零）", broken && cancer.getAbsorptionAmount() == 0.0F);
+        check("破壳后获得反作用力", EffectUtil.level(cancer, ModPotion.SELF_RECOIL) > 0);
+
+        // DP 服务：扣减、剩余、损失同步
+        cancer.setDpMax(20.0F);
+        float absorbed = DpService.damageDp(cancer, 7.0F);
+        check("damageDp 吸收 7（实际 " + absorbed + "）", Math.abs(absorbed - 7.0F) < 1.0E-4F);
+        check("扣减后 DP = 13（实际 " + DpService.dp(cancer) + "）", Math.abs(DpService.dp(cancer) - 13.0F) < 1.0E-4F);
+        check("DP_LOSS_SYNC = 7（实际 " + ModAttributes.get(cancer, ModAttributes.DP_LOSS_SYNC) + "）",
+                Math.abs(ModAttributes.get(cancer, ModAttributes.DP_LOSS_SYNC) - 7.0D) < 1.0E-4D);
+
+        // 壳破之后的普通伤害可以正常掉血（先把壳清掉、并清掉受击无敌帧）
+        cancer.setDpMax(0.0F);
+        cancer.timeUntilRegen = 0;
+        float hpAfterBreak = cancer.getHealth();
+        boolean hitAfterBreak = cancer.damage(cancer.getDamageSources().mobAttack(mob), 3.0F);
+        check("壳破后普通伤害正常结算", hitAfterBreak && cancer.getHealth() < hpAfterBreak);
+
+        mob.discard();
+        cancer.discard();
+    }
+
     // ---------------------------------------------------------------- 工具 --
 
-    /** 测试实体的安全落点：真实地表 +3 格（y=100 有可能是山体内部，会被弹丸当成撞方块）。 */
+    /** 测试实体的安全落点：世界出生点附近（保证区块已加载）、地表以上 6 格。 */
     private static Vec3d testPos(MinecraftServer server, double dx) {
+        return new Vec3d(baseX(server) + dx, safeY(server), baseZ(server));
+    }
+
+    private static double baseX(MinecraftServer server) {
+        return server.getOverworld().getSpawnPos().getX() + 0.5D;
+    }
+
+    private static double baseZ(MinecraftServer server) {
+        return server.getOverworld().getSpawnPos().getZ() + 0.5D;
+    }
+
+    /**
+     * 测试用安全高度。
+     *
+     * <p>两个坑：①写死 y（如 100）可能正好在山体里；②只在 (0,0) 取地表时，如果该区块没被加载，
+     * {@code getTopY} 会返回世界底部，实体就生成在虚空/地下——所以这里取<b>世界出生点</b>附近
+     * 一段走廊的最高地表，并用出生点 Y 兜底（自测里踩过两次）。
+     */
+    private static double safeY(MinecraftServer server) {
         ServerWorld world = server.getOverworld();
-        double y = world.getTopY(net.minecraft.world.Heightmap.Type.MOTION_BLOCKING, 0, 0) + 3.0D;
-        return new Vec3d(0.5D + dx, y, 0.5D);
+        net.minecraft.util.math.BlockPos spawn = world.getSpawnPos();
+        int max = world.getBottomY();
+        for (int dx = 0; dx <= 12; dx++) {
+            max = Math.max(max, world.getTopY(net.minecraft.world.Heightmap.Type.MOTION_BLOCKING,
+                    spawn.getX() + dx, spawn.getZ()));
+        }
+        double y = Math.max(max + 6.0D, spawn.getY() + 8.0D);
+        if (!areaLogged) {
+            areaLogged = true;
+            HBR_MC.LOGGER.info("[自测] 测试区域：spawn={} 最高地表={} 使用 y={}", spawn, max, y);
+        }
+        return y;
     }
 
     private static ZombieEntity spawnZombie(MinecraftServer server, Vec3d pos) {        ServerWorld world = server.getOverworld();

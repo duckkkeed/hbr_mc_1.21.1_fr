@@ -325,6 +325,18 @@ public final class SeraphUtil {
         return isFunctioningSeraph(player.getMainHandStack());
     }
 
+    /**
+     * 该生物是否"正在使用炽天使"（主手持有且未损坏），对应原版 {@code SeraphUtil.isUsingSeraph}。
+     *
+     * <p>DP 的破壳判定用它：只有拿着未损坏炽天使的攻击者才能打破星癌体的壳。
+     */
+    public static boolean isUsingSeraph(net.minecraft.entity.LivingEntity entity) {
+        if (!(entity instanceof PlayerEntity player)) {
+            return false;
+        }
+        return isFunctioningSeraph(player.getMainHandStack());
+    }
+
     // ------------------------------------------------------------- 内部工具 --
 
     /**

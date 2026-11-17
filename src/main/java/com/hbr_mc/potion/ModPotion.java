@@ -28,6 +28,12 @@ import net.minecraft.registry.Registry;
  *   <li>SELF_RECOIL / STUNNED 在原版是 {@code registerPotionAttributeModifier(..., -1, 2)}，
  *       其中 {@code operation = 2} 是"乘以 (1 + value)"，即 -100%。
  *       1.21.1 对应 {@link EntityAttributeModifier.Operation#ADD_MULTIPLIED_TOTAL}。</li>
+ *   <li><b>颜色必须照抄原版构造参数</b>：1.21.1 的 {@code StatusEffect(category, color)} 会拿这个
+ *       RGB 生成状态粒子（{@code ENTITY_EFFECT}），填错就会看到"反作用力粒子是红的"这种偏差。
+ *       原版：self_recoil / skill_atk_up_* = {@code 0x6ABECE}，stunned = {@code 0xE0E69E}。</li>
+ *   <li>原版的图标来自 {@code textures/misc/potions.png} 的 3 个 18×18 图标（索引 0/1/2）；
+ *       1.21.1 要求把图标放到 {@code assets/hbr_mc/textures/mob_effect/<效果id>.png}，
+ *       本工程已按原索引裁好放入。</li>
  * </ul>
  */
 public final class ModPotion {
@@ -62,10 +68,14 @@ public final class ModPotion {
     /**
      * 反作用力：移速、攻速 -100%，并且期间无法使用炽天使技能（{@code canUseSkills}）。
      *
+     * <p>颜色取原版构造参数里的 {@code liquidColor = 0x6ABECE}（青绿）：1.21.1 的
+     * {@link StatusEffect} 用这个颜色作为<b>状态粒子颜色</b>，所以数值必须和原版一致，
+     * 否则身上的粒子会变成别的颜色（例如写成 0xFF6B6B 时是红色）。
+     *
      * <p>原版把两个属性修饰都用同一个 UUID {@code f3a462f9-...}；1.21.1 改用 {@link net.minecraft.util.Identifier}，
      * 两个修饰各自需要不同的 id（同一个 id 会互相覆盖）。
      */
-    public static final StatusEffect SELF_RECOIL = register("self_recoil", new StatusEffect(StatusEffectCategory.HARMFUL, 0xFF6B6B) {
+    public static final StatusEffect SELF_RECOIL = register("self_recoil", new StatusEffect(StatusEffectCategory.HARMFUL, 0x6ABECE) {
         {
             addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED, HBR_MC.id("self_recoil_movement_speed"),
                     -1.0D, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);

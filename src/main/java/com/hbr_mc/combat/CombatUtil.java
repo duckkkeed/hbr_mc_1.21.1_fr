@@ -196,28 +196,39 @@ public final class CombatUtil {
         }
     }
 
-    /** 以 STR 为主、对 END 结算（原版 {@code HPAttack}）：目标有吸收护盾时威力 × bonusRate。 */
+    /** 以 STR 为主、对 END 结算（原版 {@code HPAttack}）：目标有 DP 时威力 × bonusRate。 */
     public static void HPAttack(LivingEntity attacker, LivingEntity target, float minPotency, float cap, float bonusRate) {
         HPAttack(null, attacker, target, minPotency, cap, bonusRate);
     }
 
     public static void HPAttack(Entity bullet, LivingEntity attacker, LivingEntity target, float minPotency,
                                 float cap, float bonusRate) {
-        boolean extra = target.getAbsorptionAmount() > 0.0F;
+        // 原版用 getAbsorptionAmount() > 0；移植 DP 后统一按"目标还有 DP"判断，
+        // 这样"以武器耐久为 DP 的玩家"也能吃到对 DP +30% 的加成（见 docs/dp-system.md）。
+        boolean extra = DpService.dp(target) > 0.0F;
         attackAsHBR(bullet, attacker, target, EnumAttrType.STR_FOCUS, EnumDefType.END,
                 extra ? minPotency * bonusRate : minPotency, cap);
     }
 
-    /** 以 DEX 为主、对 END 结算（原版 {@code DPAttack}）：目标<b>没有</b>吸收护盾时威力 × bonusRate。 */
+    /** 以 DEX 为主、对 END 结算（原版 {@code DPAttack}）：目标<b>没有</b> DP 时威力 × bonusRate。 */
     public static void DPAttack(LivingEntity attacker, LivingEntity target, float minPotency, float cap, float bonusRate) {
         DPAttack(null, attacker, target, minPotency, cap, bonusRate);
     }
 
     public static void DPAttack(Entity bullet, LivingEntity attacker, LivingEntity target, float minPotency,
                                 float cap, float bonusRate) {
-        boolean extra = target.getAbsorptionAmount() <= 0.0F;
+        boolean extra = DpService.dp(target) <= 0.0F;
         attackAsHBR(bullet, attacker, target, EnumAttrType.DEX_FOCUS, EnumDefType.END,
                 extra ? minPotency * bonusRate : minPotency, cap);
+    }
+
+    /**
+     * 该伤害来源能否打破 DP/壳，对应原版 {@code CombatUtil.canBreakShield}。
+     *
+     * <p>实现放在 {@link DpService#canBreak}（DP 规则集中在那一个类里），这里保留同名入口方便调用。
+     */
+    public static boolean canBreakShield(DamageSource source) {
+        return DpService.canBreak(source);
     }
 
     /** 简化版：以 STANDARD / END 结算（原版 {@code attackAsHBR(attacker, target, cap, lowDamage)}）。 */
