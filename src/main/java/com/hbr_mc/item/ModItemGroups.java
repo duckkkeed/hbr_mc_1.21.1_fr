@@ -95,9 +95,13 @@ public class ModItemGroups {
     public static final ItemGroup HBR_MC_GROUP_2 = Registry.register(Registries.ITEM_GROUP, Identifier.of(HBR_MC.MOD_ID, "hbr_mc_2"),
             FabricItemGroup.builder()
                     .displayName(Text.translatable("itemGroup.hbr_mc.tab_2"))
-                    .icon(() -> new ItemStack(ModItems.BRAVE_BLUE))
+                    .icon(() -> new ItemStack(ModItems.C_SLASHER_SPAWN_EGG))
                     .entries((displayContext, entries) -> {
-                        entries.add(new ItemStack(ModItems.BRAVE_BLUE));
+                        entries.add(new ItemStack(ModItems.C_SLASHER_SPAWN_EGG));
+                        entries.add(new ItemStack(ModItems.C_CREST_HOPPER_SPAWN_EGG));
+                        entries.add(new ItemStack(ModItems.C_SMALL_HOPPER_SPAWN_EGG));
+                        entries.add(new ItemStack(ModItems.C_DOLL_SPAWN_EGG));
+                        entries.add(new ItemStack(ModItems.C_MARIONETTE_SPAWN_EGG));
                     })
                     .build());
 

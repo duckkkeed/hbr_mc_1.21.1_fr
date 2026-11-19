@@ -4,10 +4,12 @@ import com.hbr_mc.HBR_MC;
 
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
+import com.hbr_mc.entity.ModEntities;
 import com.hbr_mc.item.food.KnifeCutNoodles;
 import com.hbr_mc.item.seraph.EnumSeraphRarity;
 import com.hbr_mc.item.seraph.SeraphItemSettings;
@@ -133,6 +135,22 @@ public class ModItems {
     public static final Item XP_ITEM_2 = registerItem("xp_item_2", new XpBookItem(new Item.Settings(), 2000));
 
     public static final Item CANCER_SHELL = registerItem("cancer_shell", new Item(new Item.Settings()));
+
+    // ------------------------------------------------------------ 刷怪蛋 --
+    // 1.12.2 没有刷怪蛋（只有测试用的 ItemSpawnTestCancer / accurate_spawner），
+    // 这里按 1.21.1 的规范补上：SpawnEggItem + 原生 template_spawn_egg 模型，
+    // 颜色（主色/斑点色）由 SpawnEggItem 提供，客户端 ItemColors 会自动对
+    // 所有 SpawnEggItem 注册 tint（见 MinecraftClient 里对 SpawnEggItem.getAll() 的遍历）。
+    public static final Item C_SLASHER_SPAWN_EGG = registerItem("c_slasher_spawn_egg",
+            new SpawnEggItem(ModEntities.C_SLASHER, 0x8C2F39, 0xE8C7C7, new Item.Settings()));
+    public static final Item C_CREST_HOPPER_SPAWN_EGG = registerItem("c_crest_hopper_spawn_egg",
+            new SpawnEggItem(ModEntities.C_CREST_HOPPER, 0x2F5D8C, 0xC7D8E8, new Item.Settings()));
+    public static final Item C_SMALL_HOPPER_SPAWN_EGG = registerItem("c_small_hopper_spawn_egg",
+            new SpawnEggItem(ModEntities.C_SMALL_HOPPER, 0x3F7A3A, 0xC9E8B0, new Item.Settings()));
+    public static final Item C_DOLL_SPAWN_EGG = registerItem("c_doll_spawn_egg",
+            new SpawnEggItem(ModEntities.C_DOLL, 0xB06A8C, 0xF0DCE6, new Item.Settings()));
+    public static final Item C_MARIONETTE_SPAWN_EGG = registerItem("c_marionette_spawn_egg",
+            new SpawnEggItem(ModEntities.C_MARIONETTE, 0x5D3F8C, 0xE0D2F0, new Item.Settings()));
 
     // 星癌体套装（1.12.2 的 ItemArmorCancer）：材质见 ModArmorMaterials。
     public static final Item CANCER_HELMET = registerArmor("cancer_helmet", ArmorItem.Type.HELMET);

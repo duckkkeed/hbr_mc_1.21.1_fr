@@ -122,6 +122,12 @@
   "entity.hbr_mc.c_marionette": "Marionette",
   "entity.hbr_mc.hbr_projectile": "Seraph Bullet",
 
+  "item.hbr_mc.c_slasher_spawn_egg": "Slasher Spawn Egg",
+  "item.hbr_mc.c_crest_hopper_spawn_egg": "CrestHopper Spawn Egg",
+  "item.hbr_mc.c_small_hopper_spawn_egg": "SmallHopper Spawn Egg",
+  "item.hbr_mc.c_doll_spawn_egg": "Doll Spawn Egg",
+  "item.hbr_mc.c_marionette_spawn_egg": "Marionette Spawn Egg",
+
   "tooltip.hbr_mc.knife_cut_noodles.line1": "The ones who stand in front of a boiling pot of water, a knife in hand,",
   "tooltip.hbr_mc.knife_cut_noodles.line2": "dough in the other, and slice nice-and-thin pieces into the pot until they're boiled!",
 

@@ -122,6 +122,12 @@
   "entity.hbr_mc.c_marionette": "Marionette",
   "entity.hbr_mc.hbr_projectile": "炽天使弹丸",
 
+  "item.hbr_mc.c_slasher_spawn_egg": "Slasher 刷怪蛋",
+  "item.hbr_mc.c_crest_hopper_spawn_egg": "CrestHopper 刷怪蛋",
+  "item.hbr_mc.c_small_hopper_spawn_egg": "SmallHopper 刷怪蛋",
+  "item.hbr_mc.c_doll_spawn_egg": "Doll 刷怪蛋",
+  "item.hbr_mc.c_marionette_spawn_egg": "Marionette 刷怪蛋",
+
   "tooltip.hbr_mc.knife_cut_noodles.line1": "就是一只手拿着面团，另一只手里拿刀，",
   "tooltip.hbr_mc.knife_cut_noodles.line2": "站在开水锅前，把面团削成细长的薄片下进锅里煮的那种面!",
 

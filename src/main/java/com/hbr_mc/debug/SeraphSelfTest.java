@@ -25,7 +25,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -119,6 +121,25 @@ public final class SeraphSelfTest {
         check("已登记炽天使物品 = 21（实际 " + size + "）", size == 21);
         check("抽卡池 A=" + LotteryItem.aPoolSize() + " SS=" + LotteryItem.ssPoolSize(),
                 LotteryItem.aPoolSize() > 0 && LotteryItem.ssPoolSize() > 0);
+
+        // 刷怪蛋：5 个星癌体变体都能从刷怪蛋反查到实体类型
+        Item[] eggs = {
+                ModItems.C_SLASHER_SPAWN_EGG, ModItems.C_CREST_HOPPER_SPAWN_EGG,
+                ModItems.C_SMALL_HOPPER_SPAWN_EGG, ModItems.C_DOLL_SPAWN_EGG,
+                ModItems.C_MARIONETTE_SPAWN_EGG};
+        int eggCount = 0;
+        for (Item egg : eggs) {
+            if (egg instanceof SpawnEggItem) {
+                eggCount++;
+            }
+        }
+        check("刷怪蛋 5/5 已注册为 SpawnEggItem（实际 " + eggCount + "）", eggCount == 5);
+        check("刷怪蛋能反查到实体类型",
+                SpawnEggItem.forEntity(ModEntities.C_SLASHER) == ModItems.C_SLASHER_SPAWN_EGG
+                        && SpawnEggItem.forEntity(ModEntities.C_CREST_HOPPER) == ModItems.C_CREST_HOPPER_SPAWN_EGG
+                        && SpawnEggItem.forEntity(ModEntities.C_SMALL_HOPPER) == ModItems.C_SMALL_HOPPER_SPAWN_EGG
+                        && SpawnEggItem.forEntity(ModEntities.C_DOLL) == ModItems.C_DOLL_SPAWN_EGG
+                        && SpawnEggItem.forEntity(ModEntities.C_MARIONETTE) == ModItems.C_MARIONETTE_SPAWN_EGG);
     }
 
     /** 验证 mixin：任意生物身上都能取到 8 个自定义属性实例。 */

@@ -7,7 +7,7 @@ import com.hbr_mc.item.ModItems;
 import com.hbr_mc.potion.EffectUtil;
 import com.hbr_mc.potion.ModPotion;
 import com.hbr_mc.util.SeraphTeleportControl;
-import com.hbr_mc.util.SeraphTeleportWorldStorage;
+import com.hbr_mc.util.SeraphTeleportState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -491,7 +491,7 @@ public class ItemSeraphBase extends Item {
         Direction clickedFace = context.getSide();
         ItemStack stack = context.getStack();
 
-        boolean teleportEnabled = SeraphTeleportWorldStorage.get(player);
+        boolean teleportEnabled = SeraphTeleportState.isTeleportEnabled(player);
 
         if (world.isClient) {
             // 客户端：给出一次性提示，不改变任何状态

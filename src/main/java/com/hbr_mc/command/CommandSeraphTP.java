@@ -7,7 +7,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import com.hbr_mc.util.SeraphTeleportWorldStorage;
+import com.hbr_mc.util.SeraphTeleportState;
 
 public final class CommandSeraphTP {
     public static void register() {
@@ -20,8 +20,8 @@ public final class CommandSeraphTP {
 
     private static int toggle(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayer();
-        boolean isOn = SeraphTeleportWorldStorage.get(player);
-        SeraphTeleportWorldStorage.set(player, !isOn);
+        boolean isOn = SeraphTeleportState.isTeleportEnabled(player);
+        SeraphTeleportState.setTeleportEnabled(player, !isOn);
         Text msg = Text.translatable(!isOn ? "hbr_mc.msg.teleport_allow" : "hbr_mc.msg.teleport_deny");
         source.sendFeedback(() -> msg, false);
         return 1;

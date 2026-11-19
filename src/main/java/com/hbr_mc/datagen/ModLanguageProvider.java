@@ -68,6 +68,14 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("entity.hbr_mc.c_small_hopper", "SmallHopper");
         translationBuilder.add("entity.hbr_mc.c_doll", "Doll");
         translationBuilder.add("entity.hbr_mc.c_marionette", "Marionette");
+
+        // 刷怪蛋（放在「红烧天堂 刷怪蛋」页）
+        translationBuilder.add(ModItems.C_SLASHER_SPAWN_EGG, "Slasher Spawn Egg");
+        translationBuilder.add(ModItems.C_CREST_HOPPER_SPAWN_EGG, "CrestHopper Spawn Egg");
+        translationBuilder.add(ModItems.C_SMALL_HOPPER_SPAWN_EGG, "SmallHopper Spawn Egg");
+        translationBuilder.add(ModItems.C_DOLL_SPAWN_EGG, "Doll Spawn Egg");
+        translationBuilder.add(ModItems.C_MARIONETTE_SPAWN_EGG, "Marionette Spawn Egg");
+
         translationBuilder.add("itemGroup.hbr_mc.tab_1", "Heaven Burns Red");
         translationBuilder.add("itemGroup.hbr_mc.tab_2", "Heaven Burns Red Spawn");
     }
