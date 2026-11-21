@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "hbr_mc:c_slasher",
+    "hbr_mc:c_crest_hopper",
+    "hbr_mc:c_small_hopper",
+    "hbr_mc:c_doll",
+    "hbr_mc:c_marionette"
+  ]
+}

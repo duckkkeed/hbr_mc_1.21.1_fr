@@ -46,6 +46,12 @@ public abstract class AttributeContainerMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void hbr$appendSeraphAttributes(DefaultAttributeContainer fallback, CallbackInfo ci) {
         for (RegistryEntry<EntityAttribute> attribute : ModAttributes.all()) {
+            // 默认容器里已经有这个属性（星癌体用 cancerAttributes(...) 写了六维）时不要抢先生成 0 值实例：
+            // custom 里一旦存在实例，getCustomInstance 就不会再走 fallback.createOverride，
+            // 默认容器里的基值会被永久盖住。留给 fallback 提供基值即可。
+            if (fallback.has(attribute)) {
+                continue;
+            }
             this.custom.putIfAbsent(attribute, new EntityAttributeInstance(attribute, instance -> {
             }));
         }

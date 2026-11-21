@@ -33,6 +33,11 @@ import net.minecraft.registry.entry.RegistryEntry;
  * 语义等价于 1.12.2 在 {@code EntityConstructing} 事件里对每个 {@code EntityLivingBase} 调用
  * {@code getAttributeMap().registerAttribute(attr)}。
  *
+ * <p><b>默认属性表优先</b>：如果某个实体类型的 {@code DefaultAttributeContainer} 里已经写了这些属性
+ * （星癌体用 {@code cancerAttributes(...)} 给六维写了基础值），mixin 会跳过它，
+ * 让 {@code getCustomInstance} 走 {@code fallback.createOverride} 拿默认值——
+ * 否则 {@code custom} 里先塞进去的 0 值实例会把默认值永久盖住。
+ *
  * <p>属性基值都是 0（原版同样用 {@code getNewAttrNonPercentNonNegative(name, 0)}），
  * 实际数值来自武器（{@code ItemSeraphBase} 写入的 {@code ATTRIBUTE_MODIFIERS} 组件），
  * 装备/手持时由原版 {@code LivingEntity} 的属性系统自动叠加。

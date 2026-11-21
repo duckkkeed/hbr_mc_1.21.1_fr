@@ -21,8 +21,8 @@ import net.minecraft.registry.Registry;
  *   <li>{@code c_marionette} —— 0.6×1.2。</li>
  * </ul>
  *
- * <p>自然生成与刷怪蛋按需求暂不移植；可用 {@code /summon hbr_mc:c_slasher} 等测试。
- * 旧的通用实体 {@code hbr_mc:cancer} 已移除，避免再被当成 Slasher 生成。
+ * <p>自然生成见 {@link CancerSpawns}（主世界所有群系，权重/数量在 {@link CancerConfig}）；
+ * 刷怪蛋见 {@code ModItems}。旧的通用实体 {@code hbr_mc:cancer} 已移除，避免再被当成 Slasher 生成。
  */
 public final class ModEntities {
 
@@ -88,5 +88,7 @@ public final class ModEntities {
         FabricDefaultAttributeRegistry.register(C_SMALL_HOPPER, EntitySmallHopper.createSmallHopperAttributes());
         FabricDefaultAttributeRegistry.register(C_DOLL, EntityDoll.createDollAttributes());
         FabricDefaultAttributeRegistry.register(C_MARIONETTE, EntityMarionette.createMarionetteAttributes());
+        // 自然生成（落点规则 + 生物群系生成项），对应 1.12.2 的 RegisterSpawn
+        CancerSpawns.register();
     }
 }

@@ -1,9 +1,11 @@
 package com.hbr_mc.debug;
 
 import com.hbr_mc.HBR_MC;
+import com.mojang.authlib.GameProfile;
 import com.hbr_mc.attribute.ModAttributes;
 import com.hbr_mc.combat.CombatUtil;
 import com.hbr_mc.combat.DpService;
+import com.hbr_mc.entity.EntityCancer;
 import com.hbr_mc.entity.EntitySmallHopper;
 import com.hbr_mc.entity.ModEntities;
 import com.hbr_mc.entity.projectile.EntityHBRProjectile;
@@ -19,22 +21,38 @@ import com.hbr_mc.item.seraph.SeraphUtil;
 import com.hbr_mc.potion.EffectUtil;
 import com.hbr_mc.potion.ModPotion;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.SpawnLocationTypes;
+import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
+import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Heightmap;
+import net.minecraft.world.biome.SpawnSettings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 开发期自检：用一条命令验证"属性 / 成长 / 技能 / 伤害 / 配方 / 弹丸"整条链路是否真的通。
@@ -97,6 +115,11 @@ public final class SeraphSelfTest {
             checkRecipes(server);
             checkProjectile(server);
             checkDp(server);
+            checkCancerSixAttr(server);
+            checkCancerDrop(server);
+            checkCancerSpawns(server);
+            checkRealSpawner(server);
+            checkCancerAttack(server);
         } catch (Throwable t) {
             FAILURES.add("自检过程抛异常: " + t);
             HBR_MC.LOGGER.error("[自测] 自检过程抛异常", t);
@@ -380,7 +403,278 @@ public final class SeraphSelfTest {
         cancer.discard();
     }
 
-    // ---------------------------------------------------------------- 工具 --
+    /**
+     * 验证星癌体六维（1.12.2 的 {@code set6Attr}）：五个变体的六项都等于各自的值。
+     *
+     * <p>同时验证 {@code AttributeContainerMixin} 没有把默认容器里的基值盖成 0
+     * （mixin 会跳过 fallback 里已有的属性）。
+     */
+    private static void checkCancerSixAttr(MinecraftServer server) {
+        checkCancerSix(server, "c_slasher", ModEntities.C_SLASHER, 50.0D);
+        checkCancerSix(server, "c_crest_hopper", ModEntities.C_CREST_HOPPER, 40.0D);
+        checkCancerSix(server, "c_small_hopper", ModEntities.C_SMALL_HOPPER, 20.0D);
+        checkCancerSix(server, "c_doll", ModEntities.C_DOLL, 10.0D);
+        checkCancerSix(server, "c_marionette", ModEntities.C_MARIONETTE, 3.0D);
+    }
+
+    private static void checkCancerSix(MinecraftServer server, String name,
+                                       EntityType<? extends EntityCancer> type, double expected) {
+        EntityCancer cancer = type.create(server.getOverworld());
+        if (cancer == null) {
+            check(name + " 六维：实体可创建", false);
+            return;
+        }
+        StringBuilder actual = new StringBuilder();
+        boolean ok = true;
+        for (RegistryEntry<EntityAttribute> attribute : ModAttributes.SIX) {
+            double value = ModAttributes.get(cancer, attribute);
+            ok &= Math.abs(value - expected) < 1.0E-4D;
+            if (actual.length() > 0) {
+                actual.append(' ');
+            }
+            actual.append(shortName(attribute)).append('=').append(Math.round(value));
+        }
+        check(name + " 六维全为 " + (int) expected + "（实际 " + actual + "）", ok);
+        cancer.discard();
+    }
+
+    /**
+     * 验证"掉落按 STR 生成"这条链路：STR=250 时癌壳应至少 2 个（原版 {@code advancedDrop}：整数部分必掉）。
+     *
+     * <p>顺带验证 {@code EntityCancer#getLootTableId()} 覆写成 {@code minecraft:empty} 后
+     * 不会走数据包战利品表、也不会崩。
+     */
+    private static void checkCancerDrop(MinecraftServer server) {
+        ServerWorld world = server.getOverworld();
+        Vec3d pos = testPos(server, 10.0D);
+        Box area = Box.of(pos, 8.0D, 8.0D, 8.0D);
+
+        // 清掉测试区里残留的掉落物，避免"新掉落合并进旧堆"导致计数偏小
+        for (ItemEntity item : world.getEntitiesByClass(ItemEntity.class, area, item -> true)) {
+            item.discard();
+        }
+
+        EntityCancer cancer = ModEntities.C_SLASHER.create(world);
+        if (cancer == null) {
+            check("星癌体掉落：实体可创建", false);
+            return;
+        }
+        cancer.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0.0F, 0.0F);
+        world.spawnEntity(cancer);
+        cancer.initialize(world, world.getLocalDifficulty(cancer.getBlockPos()),
+                net.minecraft.entity.SpawnReason.COMMAND, null);
+        var str = cancer.getAttributeInstance(ModAttributes.STR);
+        if (str == null) {
+            check("星癌体掉落：STR 属性实例存在", false);
+            cancer.discard();
+            return;
+        }
+        str.setBaseValue(250.0D);
+
+        // 实际 STR 可能已经被群系加成（雪地/沙漠）；掉率 = STR/100，整数部分必掉、余数按概率
+        int guaranteed = (int) (ModAttributes.get(cancer, ModAttributes.STR) / 100.0D);
+        cancer.damage(cancer.getDamageSources().outOfWorld(), 1000.0F);
+
+        int shellCount = world.getEntitiesByClass(ItemEntity.class, area,
+                        item -> item.getStack().isOf(ModItems.CANCER_SHELL))
+                .stream().mapToInt(item -> item.getStack().getCount()).sum();
+        int extraCount = world.getEntitiesByClass(ItemEntity.class, area,
+                        item -> item.getStack().isOf(ModItems.BOOST_1_B))
+                .stream().mapToInt(item -> item.getStack().getCount()).sum();
+        check("STR=" + (int) ModAttributes.get(cancer, ModAttributes.STR) + " 掉癌壳 ≥ " + guaranteed
+                + "（实际 " + shellCount + "）", shellCount >= guaranteed);
+        check("STR=" + (int) ModAttributes.get(cancer, ModAttributes.STR) + " 掉诺瓦原水 B ≥ " + guaranteed
+                + "（实际 " + extraCount + "）", extraCount >= guaranteed);
+        check("单次掉落不超过整数部分 +1（" + shellCount + " / " + guaranteed + "）", shellCount <= guaranteed + 1);
+
+        for (ItemEntity item : world.getEntitiesByClass(ItemEntity.class, area, item -> true)) {
+            item.discard();
+        }
+        cancer.discard();
+    }
+
+    /**
+     * 验证近战走的是六维公式（{@code CombatUtil.attackAsHBR}）而不是原版攻击力直扣：
+     * STR/DEX 拉到很低时几乎打不动（原版 20 攻击力会直接打死 20 血的僵尸），拉高后一击必杀。
+     */
+    private static void checkCancerAttack(MinecraftServer server) {
+        ServerWorld world = server.getOverworld();
+        EntityCancer slasher = ModEntities.C_SLASHER.create(world);
+        ZombieEntity zombie = spawnZombie(server, testPos(server, 14.0D));
+        if (slasher == null) {
+            check("星癌体近战：实体可创建", false);
+            zombie.discard();
+            return;
+        }
+        Vec3d pos = testPos(server, 12.0D);
+        slasher.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0.0F, 0.0F);
+        world.spawnEntity(slasher);
+
+        setAttr(slasher, ModAttributes.STR, -100.0D);
+        setAttr(slasher, ModAttributes.DEX, -100.0D);
+        setAttr(slasher, ModAttributes.LUC, 0.0D);
+        boolean hit = slasher.tryAttack(zombie);
+        check("六维极低时仍算命中", hit);
+        check("六维极低时几乎打不动（实际 HP=" + round(zombie.getHealth()) + "）", zombie.getHealth() > 19.0D);
+
+        setAttr(slasher, ModAttributes.STR, 500.0D);
+        setAttr(slasher, ModAttributes.DEX, 500.0D);
+        slasher.tryAttack(zombie);
+        check("六维拉满时一击必杀", zombie.isDead() || zombie.getHealth() <= 0.0F);
+
+        slasher.discard();
+        zombie.discard();
+    }
+
+    private static void setAttr(LivingEntity entity, RegistryEntry<EntityAttribute> attribute, double value) {
+        var instance = entity.getAttributeInstance(attribute);
+        if (instance != null) {
+            instance.setBaseValue(value);
+        }
+    }
+
+
+    /**
+     * 验证自然生成注册（对应 1.12.2 {@code RegisterSpawn}）：
+     * 五条生成项都在主世界群系的 MONSTER 池里、每次 1~3 只，落点规则是 {@code ON_GROUND}；
+     * 并且"头顶不见天"的位置会被 {@link EntityCancer#canSpawn} 拒绝。
+     */
+    private static void checkCancerSpawns(MinecraftServer server) {
+        ServerWorld world = server.getOverworld();
+        List<SpawnSettings.SpawnEntry> entries = world.getBiome(world.getSpawnPos()).value()
+                .getSpawnSettings().getSpawnEntries(SpawnGroup.MONSTER).getEntries();
+
+        checkCancerSpawnEntry("c_slasher", ModEntities.C_SLASHER, entries);
+        checkCancerSpawnEntry("c_crest_hopper", ModEntities.C_CREST_HOPPER, entries);
+        checkCancerSpawnEntry("c_small_hopper", ModEntities.C_SMALL_HOPPER, entries);
+        checkCancerSpawnEntry("c_doll", ModEntities.C_DOLL, entries);
+        checkCancerSpawnEntry("c_marionette", ModEntities.C_MARIONETTE, entries);
+
+        check("星癌体落点规则 = ON_GROUND",
+                SpawnRestriction.getLocation(ModEntities.C_SLASHER) == SpawnLocationTypes.ON_GROUND);
+        check("星癌体水下不窒息（can_breathe_under_water 标签）",
+                ModEntities.C_SLASHER.isIn(EntityTypeTags.CAN_BREATHE_UNDER_WATER));
+
+        BlockPos spawn = world.getSpawnPos();
+        BlockPos underground = new BlockPos(spawn.getX(),
+                world.getTopY(Heightmap.Type.WORLD_SURFACE, spawn.getX(), spawn.getZ()) - 10, spawn.getZ());
+        check("头顶不见天的位置不能自然生成",
+                !EntityCancer.canSpawn(ModEntities.C_SLASHER, world, net.minecraft.entity.SpawnReason.NATURAL,
+                        underground, world.getRandom()));
+
+        // 1.12.2 的星癌体没有继承 EntityMob，因此没有"怪物只在暗处生成"的光照检查：
+        // 正午露天也必须允许生成（作为对照，同一位置的原版僵尸会被拦住）。
+        // 用一块临时泥土在露天空域构造落点，避免出生点地形（水面/台阶/树叶）影响判定。
+        BlockPos probe = new BlockPos(spawn.getX(), 300, spawn.getZ());
+        BlockState oldState = world.getBlockState(probe);
+        world.setBlockState(probe, Blocks.DIRT.getDefaultState());
+        long timeBefore = world.getTimeOfDay();
+        world.setTimeOfDay(6000L); // 正午
+        BlockPos feet = probe.up();
+        boolean cancerAtNoon = EntityCancer.canSpawn(ModEntities.C_SLASHER, world,
+                net.minecraft.entity.SpawnReason.NATURAL, feet, world.getRandom());
+        boolean zombieAtNoon = HostileEntity.canSpawnInDark(EntityType.ZOMBIE, world,
+                net.minecraft.entity.SpawnReason.NATURAL, feet, world.getRandom());
+        world.setTimeOfDay(timeBefore);
+        world.setBlockState(probe, oldState);
+
+        check("正午露天允许星癌体自然生成", cancerAtNoon);
+        check("对照：同一位置原版僵尸正午被光照拦住", !zombieAtNoon);
+
+        // 在真实地形上扫一圈，逐项检查 spawner 的门槛（正午）：
+        // 脚下方块允许生成 → ON_GROUND 落点 → 空间足够 → 本 mod 的谓词
+        long noon = world.getTimeOfDay();
+        world.setTimeOfDay(6000L);
+        int candidates = 0;
+        int allowed = 0;
+        int space = 0;
+        int predicate = 0;
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                int x = spawn.getX() + dx * 6;
+                int z = spawn.getZ() + dz * 6;
+                int top = world.getTopY(Heightmap.Type.WORLD_SURFACE, x, z);
+                for (int y = top; y > top - 4; y--) {
+                    BlockPos feetPos = new BlockPos(x, y, z);
+                    if (!world.getBlockState(feetPos.down())
+                            .allowsSpawning(world, feetPos.down(), ModEntities.C_SLASHER)) {
+                        continue;
+                    }
+                    if (!world.getBlockState(feetPos).isAir() || !world.getBlockState(feetPos.up()).isAir()) {
+                        continue;
+                    }
+                    candidates++;
+                    if (!SpawnRestriction.isSpawnPosAllowed(ModEntities.C_SLASHER, world, feetPos)) {
+                        continue;
+                    }
+                    allowed++;
+                    if (!world.isSpaceEmpty(ModEntities.C_SLASHER
+                            .getSpawnBox(feetPos.getX() + 0.5, feetPos.getY(), feetPos.getZ() + 0.5))) {
+                        continue;
+                    }
+                    space++;
+                    if (EntityCancer.canSpawn(ModEntities.C_SLASHER, world,
+                            net.minecraft.entity.SpawnReason.NATURAL, feetPos, world.getRandom())) {
+                        predicate++;
+                        if (predicate == 1) {
+                            HBR_MC.LOGGER.info("[自测] 首个可通过的落点：{}（下方 {}）",
+                                    feetPos, world.getBlockState(feetPos.down()));
+                        }
+                    }
+                }
+            }
+        }
+        world.setTimeOfDay(noon);
+        HBR_MC.LOGGER.info("[自测] 真实地表正午：候选 {}，落点允许 {}，空间 {}，谓词通过 {}",
+                candidates, allowed, space, predicate);
+        check("真实地表正午存在可通过的生成点（谓词通过 " + predicate + "）", predicate > 0);
+    }
+
+    /**
+     * 用假玩家 + 真实 {@code SpawnHelper} 走一遍自然生成流程（正午），确认星癌体真的能刷出来。
+     *
+     * <p>这条检查是踩坑后加的：只验证 {@code SpawnRestriction} 谓词是不够的 ——
+     * {@code PathAwareEntity#canSpawn} 还会用 {@code getPathfindingFavor} 做第二道趋光判断，
+     * 白天（亮度 1.0 → favor -0.5）会直接拦掉。1.21.1 的 {@code HostileEntity} 把"趋暗"写在这里，
+     * 而 1.12.2 的星癌体继承 {@code EntityCreature} 时拿到的 {@code getBlockPathWeight} 是 0。
+     */
+    private static void checkRealSpawner(MinecraftServer server) {
+        ServerWorld world = server.getOverworld();
+        BlockPos spawn = world.getSpawnPos();
+        BlockPos surface = new BlockPos(spawn.getX() + 40,
+                world.getTopY(Heightmap.Type.WORLD_SURFACE, spawn.getX() + 40, spawn.getZ() + 40), spawn.getZ() + 40);
+        // 假玩家：SpawnHelper 需要"24 格外有玩家"才允许生成
+        GameProfile profile = new GameProfile(UUID.randomUUID(), "spawn_probe");
+        ServerPlayerEntity fake = new ServerPlayerEntity(server, world, profile, SyncedClientOptions.createDefault());
+        fake.refreshPositionAndAngles(surface.getX() + 20, surface.getY(), surface.getZ(), 0.0F, 0.0F);
+        world.getPlayers().add(fake);
+        long timeBefore = world.getTimeOfDay();
+        world.setTimeOfDay(6000L); // 正午
+        try {
+            for (int i = 0; i < 300; i++) {
+                net.minecraft.world.SpawnHelper.spawnEntitiesInChunk(SpawnGroup.MONSTER, world, surface);
+            }
+        } finally {
+            world.setTimeOfDay(timeBefore);
+            world.getPlayers().remove(fake);
+        }
+        Box box = Box.of(new Vec3d(surface.getX() + 0.5, surface.getY() + 0.5, surface.getZ() + 0.5), 48.0, 48.0, 48.0);
+        List<EntityCancer> spawned = world.getEntitiesByClass(EntityCancer.class, box, entity -> true);
+        HBR_MC.LOGGER.info("[自测] 真实刷怪流程（正午）生成 {} 只星癌体", spawned.size());
+        check("正午用真实 SpawnHelper 能刷出星癌体（实际 " + spawned.size() + " 只）", !spawned.isEmpty());
+        for (EntityCancer cancer : spawned) {
+            cancer.discard();
+        }
+    }
+
+    private static <T extends EntityCancer> void checkCancerSpawnEntry(String name, EntityType<T> type,
+                                                                       List<SpawnSettings.SpawnEntry> entries) {
+        boolean found = entries.stream().anyMatch(entry -> entry.type == type
+                && entry.minGroupSize == 1
+                && entry.maxGroupSize == 3
+                && entry.getWeight().getValue() >= 1);
+        check(name + " 已加入主世界 MONSTER 生成表（1~3 只）", found);
+    }
 
     /** 测试实体的安全落点：世界出生点附近（保证区块已加载）、地表以上 6 格。 */
     private static Vec3d testPos(MinecraftServer server, double dx) {
