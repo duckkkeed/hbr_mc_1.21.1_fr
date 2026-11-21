@@ -63,6 +63,12 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("block.hbr_mc.cancer_carpet.desc", "Cheap carpet. Used to disable mob spawning, especially cancers.");
         translationBuilder.add(ModBlocks.RANDOM_DROP_BASIC, "Some Loot");
         translationBuilder.add("block.hbr_mc.random_1.desc", "Break it to get random things.");
+        translationBuilder.add(ModBlocks.HEAL_STASH, "Heal Stash");
+        translationBuilder.add("block.hbr_mc.heal_stash.desc",
+                "Right click: heal 5 HP, fully repair your Seraph and reset its skill uses. One use only.");
+        translationBuilder.add(ModBlocks.HEAL_STASH_PERMA, "Heal Stash Perma");
+        translationBuilder.add("block.hbr_mc.heal_stash_perma.desc",
+                "Right click: heal 99 HP, fully repair your Seraph and reset its skill uses. Reusable.");
         translationBuilder.add("entity.hbr_mc.c_slasher", "Slasher");
         translationBuilder.add("entity.hbr_mc.c_crest_hopper", "CrestHopper");
         translationBuilder.add("entity.hbr_mc.c_small_hopper", "SmallHopper");

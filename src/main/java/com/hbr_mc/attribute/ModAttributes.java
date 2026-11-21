@@ -132,7 +132,7 @@ public final class ModAttributes {
     public static String describe(LivingEntity entity) {
         StringBuilder sb = new StringBuilder();
         for (RegistryEntry<EntityAttribute> attribute : SIX) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append(' ');
             }
             sb.append(attribute.value().getTranslationKey().replace("attribute.hbr_mc.", ""))

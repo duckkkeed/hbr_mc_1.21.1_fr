@@ -3,6 +3,7 @@ package com.hbr_mc.debug;
 import com.hbr_mc.HBR_MC;
 import com.mojang.authlib.GameProfile;
 import com.hbr_mc.attribute.ModAttributes;
+import com.hbr_mc.block.ModBlocks;
 import com.hbr_mc.combat.CombatUtil;
 import com.hbr_mc.combat.DpService;
 import com.hbr_mc.entity.EntityCancer;
@@ -35,6 +36,7 @@ import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
@@ -42,10 +44,14 @@ import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerItemCooldownManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.SpawnSettings;
@@ -120,6 +126,7 @@ public final class SeraphSelfTest {
             checkCancerSpawns(server);
             checkRealSpawner(server);
             checkCancerAttack(server);
+            checkHealStash(server);
         } catch (Throwable t) {
             FAILURES.add("自检过程抛异常: " + t);
             HBR_MC.LOGGER.error("[自测] 自检过程抛异常", t);
@@ -643,11 +650,9 @@ public final class SeraphSelfTest {
         BlockPos spawn = world.getSpawnPos();
         BlockPos surface = new BlockPos(spawn.getX() + 40,
                 world.getTopY(Heightmap.Type.WORLD_SURFACE, spawn.getX() + 40, spawn.getZ() + 40), spawn.getZ() + 40);
-        // 假玩家：SpawnHelper 需要"24 格外有玩家"才允许生成
-        GameProfile profile = new GameProfile(UUID.randomUUID(), "spawn_probe");
-        ServerPlayerEntity fake = new ServerPlayerEntity(server, world, profile, SyncedClientOptions.createDefault());
-        fake.refreshPositionAndAngles(surface.getX() + 20, surface.getY(), surface.getZ(), 0.0F, 0.0F);
-        world.getPlayers().add(fake);
+        // 假玩家：SpawnHelper 需要"24 格外有玩家"才允许生成，放在 32 格外留出抖动余量
+        ServerPlayerEntity fake = addFakePlayer(server, world,
+                new Vec3d(surface.getX() + 32, surface.getY(), surface.getZ()));
         long timeBefore = world.getTimeOfDay();
         world.setTimeOfDay(6000L); // 正午
         try {
@@ -664,6 +669,82 @@ public final class SeraphSelfTest {
         check("正午用真实 SpawnHelper 能刷出星癌体（实际 " + spawned.size() + " 只）", !spawned.isEmpty());
         for (EntityCancer cancer : spawned) {
             cancer.discard();
+        }
+    }
+
+    /**
+     * 治疗补给箱（{@code heal_stash} / {@code heal_stash_perma}）的行为检查，对应 1.12.2 {@code BlockHealStash}：
+     * 回血、满修炽天使、清空技能次数、上 200 tick 冷却；一次性版本用后消失，无限版本保留。
+     */
+    private static void checkHealStash(MinecraftServer server) {
+        ServerWorld world = server.getOverworld();
+        BlockPos spawn = world.getSpawnPos();
+        BlockPos pos = new BlockPos(spawn.getX() + 3,
+                world.getTopY(Heightmap.Type.WORLD_SURFACE, spawn.getX() + 3, spawn.getZ() + 3), spawn.getZ() + 3);
+        BlockState oldState = world.getBlockState(pos);
+        ServerPlayerEntity fake = addFakePlayer(server, world, Vec3d.ofCenter(pos));
+        try {
+            // 一次性补给箱
+            world.setBlockState(pos, ModBlocks.HEAL_STASH.getDefaultState());
+            fake.setHealth(5.0F);
+            ItemStack seraph = new ItemStack(ModItems.BRAVE_BLUE);
+            seraph.setDamage(100);
+            SeraphUtil.setSkillLevel(seraph, 0, 3);
+            SeraphUtil.markSkillUsed(seraph, 0);
+            SeraphUtil.markSkillUsed(seraph, 0);
+            fake.setStackInHand(Hand.MAIN_HAND, seraph);
+
+            world.getBlockState(pos).onUse(world, fake,
+                    new BlockHitResult(Vec3d.ofCenter(pos), Direction.UP, pos, false));
+
+            check("补给箱回复生命（5.0 → " + fake.getHealth() + "）", fake.getHealth() > 5.0F);
+            check("补给箱满修炽天使（damage=" + seraph.getDamage() + "）", seraph.getDamage() == 0);
+            check("补给箱清空技能次数（usage=" + SeraphUtil.getSkillUsage(seraph, 0) + "）",
+                    SeraphUtil.getSkillUsage(seraph, 0) == 0);
+            check("补给箱给炽天使上 200 tick 冷却", fake.getItemCooldownManager().isCoolingDown(seraph.getItem()));
+            check("一次性补给箱用后消失", world.getBlockState(pos).isAir());
+
+            // 无限补给箱
+            world.setBlockState(pos, ModBlocks.HEAL_STASH_PERMA.getDefaultState());
+            fake.setHealth(5.0F);
+            world.getBlockState(pos).onUse(world, fake,
+                    new BlockHitResult(Vec3d.ofCenter(pos), Direction.UP, pos, false));
+            check("无限补给箱可重复使用（方块保留）", !world.getBlockState(pos).isAir());
+            check("无限补给箱回复生命（5.0 → " + fake.getHealth() + "）", fake.getHealth() > 5.0F);
+        } finally {
+            world.setBlockState(pos, oldState);
+            world.getPlayers().remove(fake);
+        }
+    }
+
+    /** 造一个只用于自检的假玩家（不进实体列表，只进 playerEntities 供"最近玩家"等判定用）。 */
+    private static ServerPlayerEntity addFakePlayer(MinecraftServer server, ServerWorld world, Vec3d pos) {
+        GameProfile profile = new GameProfile(UUID.randomUUID(), "selftest_probe");
+        // 假玩家没有 networkHandler，默认的 ServerItemCooldownManager 发包会 NPE；
+        // 这里换成"不同步"的冷却管理器，行为其余部分与真实玩家一致。
+        ServerPlayerEntity fake = new ServerPlayerEntity(server, world, profile, SyncedClientOptions.createDefault()) {
+            @Override
+            protected ItemCooldownManager createCooldownManager() {
+                return new SilentCooldownManager(this);
+            }
+        };
+        fake.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0.0F, 0.0F);
+        world.getPlayers().add(fake);
+        return fake;
+    }
+
+    private static final class SilentCooldownManager extends ServerItemCooldownManager {
+        SilentCooldownManager(ServerPlayerEntity player) {
+            super(player);
+        }
+
+        @Override
+        protected void onCooldownUpdate(Item item, int duration) {
+            // 假玩家没有网络处理器，不同步
+        }
+
+        @Override
+        protected void onCooldownUpdate(Item item) {
         }
     }
 

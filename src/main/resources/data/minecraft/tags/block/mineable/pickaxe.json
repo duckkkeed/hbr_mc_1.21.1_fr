@@ -1,6 +1,8 @@
 {
   "values": [
     "hbr_mc:crystal_ore",
-    "hbr_mc:deepslate_crystal_ore"
+    "hbr_mc:deepslate_crystal_ore",
+    "hbr_mc:heal_stash",
+    "hbr_mc:heal_stash_perma"
   ]
 }

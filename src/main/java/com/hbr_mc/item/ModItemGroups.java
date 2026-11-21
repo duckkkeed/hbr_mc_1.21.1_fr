@@ -65,6 +65,8 @@ public class ModItemGroups {
                         entries.add(new ItemStack(ModBlocks.DEEPSLATE_CRYSTAL_ORE));
                         entries.add(new ItemStack(ModBlocks.CANCER_CARPET));
                         entries.add(new ItemStack(ModBlocks.RANDOM_DROP_BASIC));
+                        entries.add(new ItemStack(ModBlocks.HEAL_STASH));
+                        entries.add(new ItemStack(ModBlocks.HEAL_STASH_PERMA));
 
                         entries.add(new ItemStack(ModItems.GEM_R));
                         entries.add(new ItemStack(ModItems.GEM_Y));

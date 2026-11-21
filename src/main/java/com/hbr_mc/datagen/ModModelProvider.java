@@ -20,6 +20,8 @@ public class ModModelProvider extends FabricModelProvider {
         blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.DEEPSLATE_CRYSTAL_ORE);
         blockStateModelGenerator.registerSingleton(ModBlocks.CANCER_CARPET, TexturedModel.CARPET);
         blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.RANDOM_DROP_BASIC);
+        blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.HEAL_STASH);
+        blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.HEAL_STASH_PERMA);
     }
 
     @Override

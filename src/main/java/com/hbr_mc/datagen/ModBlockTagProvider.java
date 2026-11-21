@@ -17,7 +17,9 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
     protected void configure(RegistryWrapper.WrapperLookup registryLookup) {
         getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE)
                 .add(ModBlocks.CRYSTAL_ORE)
-                .add(ModBlocks.DEEPSLATE_CRYSTAL_ORE);
+                .add(ModBlocks.DEEPSLATE_CRYSTAL_ORE)
+                .add(ModBlocks.HEAL_STASH)
+                .add(ModBlocks.HEAL_STASH_PERMA);
 
         getOrCreateTagBuilder(BlockTags.NEEDS_DIAMOND_TOOL)
                 .add(ModBlocks.CRYSTAL_ORE)

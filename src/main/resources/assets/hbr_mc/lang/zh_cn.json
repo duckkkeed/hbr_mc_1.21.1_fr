@@ -114,6 +114,10 @@
   "block.hbr_mc.cancer_carpet.desc": "廉价的地毯。用来抑制刷怪，尤其是防止刷星癌体。",
   "block.hbr_mc.random_1": "补给",
   "block.hbr_mc.random_1.desc": "右键或打碎能掉落补给，包括战斗报告书、阳石水滴、碧琥珀。",
+  "block.hbr_mc.heal_stash": "补给箱（一次性）",
+  "block.hbr_mc.heal_stash.desc": "右键：回复 5 点生命，满修手中炽天使并清空技能使用次数。用后消失。",
+  "block.hbr_mc.heal_stash_perma": "补给箱(无限)",
+  "block.hbr_mc.heal_stash_perma.desc": "右键：回复 99 点生命，满修手中炽天使并清空技能使用次数。可重复使用。",
 
   "entity.hbr_mc.c_slasher": "Slasher",
   "entity.hbr_mc.c_crest_hopper": "CrestHopper",

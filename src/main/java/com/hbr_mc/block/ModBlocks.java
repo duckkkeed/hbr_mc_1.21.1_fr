@@ -41,6 +41,32 @@ public class ModBlocks {
                     .strength(0.1F)
                     .sounds(BlockSoundGroup.WOOD)));
 
+    /**
+     * 一次性治疗补给箱，对应 1.12.2 的
+     * {@code HEAL_STASH = new BlockHealStash("heal_stash", Material.ROCK, 5)}。
+     *
+     * <p>硬度 10（原版 {@code setHardness(10)} 会把爆炸抗性抬到 {@code 10 × 5 = 50}）、
+     * 岩石音效与挖掘等级、不掉落自身（原版 {@code getItemDropped = AIR} 且禁止精准采集）。
+     */
+    public static final Block HEAL_STASH = register("heal_stash",
+            new HealStashBlock(AbstractBlock.Settings.create()
+                    .mapColor(MapColor.STONE_GRAY)
+                    .strength(10.0F, 50.0F)
+                    .requiresTool()
+                    .dropsNothing(), 5.0F, true));
+
+    /**
+     * 无限治疗补给箱，对应 1.12.2 的
+     * {@code HEAL_STASH_PERMA = new HealStashBlock("heal_stash_perma", Material.ROCK, 99).setOneUse(false)}：
+     * 不可破坏（原版 {@code setBlockUnbreakable}）、回 99 点、可反复使用。
+     */
+    public static final Block HEAL_STASH_PERMA = register("heal_stash_perma",
+            new HealStashBlock(AbstractBlock.Settings.create()
+                    .mapColor(MapColor.STONE_GRAY)
+                    .strength(-1.0F, 3600000.0F)
+                    .requiresTool()
+                    .dropsNothing(), 99.0F, false));
+
     public static void registerBlocks(String id, Block block)
     {
         Item item = Registry.register(Registries.ITEM, Identifier.of(HBR_MC.MOD_ID, id), new BlockItem(block, new Item.Settings()));

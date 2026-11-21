@@ -114,6 +114,10 @@
   "block.hbr_mc.cancer_carpet.desc": "Cheap carpet. Used to disable mob spawning, especially cancers.",
   "block.hbr_mc.random_1": "Some Loot",
   "block.hbr_mc.random_1.desc": "Break it to get random things.",
+  "block.hbr_mc.heal_stash": "Heal Stash",
+  "block.hbr_mc.heal_stash.desc": "Right click: heal 5 HP, fully repair your Seraph and reset its skill uses. One use only.",
+  "block.hbr_mc.heal_stash_perma": "Heal Stash Perma",
+  "block.hbr_mc.heal_stash_perma.desc": "Right click: heal 99 HP, fully repair your Seraph and reset its skill uses. Reusable.",
 
   "entity.hbr_mc.c_slasher": "Slasher",
   "entity.hbr_mc.c_crest_hopper": "CrestHopper",
